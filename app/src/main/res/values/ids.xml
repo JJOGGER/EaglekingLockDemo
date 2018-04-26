@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="immersive" type="id">immersiveid</item>
+    <item name="img_record" type="id">影像记录</item>
+    <item name="net_push" type="id">网络推送</item>
+</resources>

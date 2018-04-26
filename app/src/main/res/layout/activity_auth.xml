@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/immersive"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:orientation="vertical"
+    tools:context="cn.jcyh.eaglekinglockdemo.ui.activity.AuthActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="账号"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"/>
+
+
+        <EditText
+            android:id="@+id/et_auth_user"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:background="@null"
+            android:hint="请输入用户名"
+            android:paddingLeft="10dp"
+            android:textColorHint="@android:color/darker_gray"
+            android:textSize="15sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="密码"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"/>
+
+
+        <EditText
+            android:id="@+id/et_auth_pwd"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:background="@null"
+            android:hint="请输入密码"
+            android:inputType="textPassword"
+            android:paddingLeft="10dp"
+            android:textColorHint="@android:color/darker_gray"
+            android:textSize="15sp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_auth"
+        android:layout_width="fill_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="15dp"
+        android:background="@android:color/holo_blue_bright"
+        android:gravity="center"
+        android:text="授权"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="access_token"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"/>
+
+
+        <TextView
+            android:id="@+id/tv_auth_access_token"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:background="@null"
+            android:hint="访问令牌"
+            android:paddingLeft="10dp"
+            android:textColorHint="@android:color/darker_gray"
+            android:textSize="15sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="openid"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"/>
+
+
+        <TextView
+            android:id="@+id/tv_auth_openid"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:background="@null"
+            android:hint="开放的用户id"
+            android:paddingLeft="10dp"
+            android:textColorHint="@android:color/darker_gray"
+            android:textSize="15sp"/>
+
+    </LinearLayout>
+</LinearLayout>

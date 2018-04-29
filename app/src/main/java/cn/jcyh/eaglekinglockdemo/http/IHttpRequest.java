@@ -11,4 +11,5 @@ interface IHttpRequest<T> {
 
     void auth(String userName, String pwd, final OnHttpRequestCallback<T> lisstener);
 
+    void syncData(long lastUpdateDate,String accessToken, final OnHttpRequestCallback<T> listener);
 }

@@ -26,6 +26,7 @@
 
 
         <EditText
+            android:text="18159412078"
             android:id="@+id/et_auth_user"
             android:layout_width="fill_parent"
             android:layout_height="48dp"
@@ -51,6 +52,7 @@
 
 
         <EditText
+            android:text="666666"
             android:id="@+id/et_auth_pwd"
             android:layout_width="fill_parent"
             android:layout_height="48dp"

@@ -2,6 +2,8 @@ package cn.jcyh.eaglekinglockdemo.http;
 
 import android.content.Context;
 
+import com.lock.bl.sdk.util.Timber;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class ReceivedCookiesInterceptor implements Interceptor {
 
         Response originalResponse = chain.proceed(chain.request());
         //这里获取请求返回的cookie
+        Timber.e("--------->request:"+chain.request().url());
         List<String> headers = originalResponse.headers("Set-Cookie");
         if (headers != null) {
             final StringBuffer cookieBuffer = new StringBuffer();

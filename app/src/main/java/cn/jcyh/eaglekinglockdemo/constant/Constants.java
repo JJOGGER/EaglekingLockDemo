@@ -5,5 +5,6 @@ package cn.jcyh.eaglekinglockdemo.constant;
  */
 
 public class Constants {
-    public static final String USER_INFO="user_info";
+    public static final String USER_INFO = "user_info";
+    public static final String KEY_LIST = "key_list";
 }

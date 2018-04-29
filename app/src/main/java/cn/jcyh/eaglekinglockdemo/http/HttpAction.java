@@ -6,6 +6,7 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import java.util.concurrent.TimeUnit;
 
+import cn.jcyh.eaglekinglockdemo.bean.SyncData;
 import cn.jcyh.eaglekinglockdemo.bean.User;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -56,5 +57,9 @@ public class HttpAction {
 
     public void login(String accoount, String pwd, final OnHttpRequestCallback<Boolean> listener) {
         mHttpRequest.login(accoount, pwd, listener);
+    }
+
+    public void syncData(long lastUpdateDate, String accessToken, final OnHttpRequestCallback<SyncData> listener) {
+        mHttpRequest.syncData(lastUpdateDate, accessToken, listener);
     }
 }

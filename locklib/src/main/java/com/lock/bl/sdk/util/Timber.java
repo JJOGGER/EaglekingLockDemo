@@ -1,4 +1,4 @@
-package cn.jcyh.eaglekinglockdemo.utils;
+package com.lock.bl.sdk.util;
 
 import android.util.Log;
 

@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.lock.bl.sdk.util.Timber;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,7 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 

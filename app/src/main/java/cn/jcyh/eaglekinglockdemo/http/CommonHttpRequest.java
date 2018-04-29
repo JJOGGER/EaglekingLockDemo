@@ -1,6 +1,7 @@
 package cn.jcyh.eaglekinglockdemo.http;
 
 import com.google.gson.Gson;
+import com.lock.bl.sdk.util.Timber;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,9 +9,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import cn.jcyh.eaglekinglockdemo.bean.HttpResult;
+import cn.jcyh.eaglekinglockdemo.bean.SyncData;
+import cn.jcyh.eaglekinglockdemo.bean.User;
 import cn.jcyh.eaglekinglockdemo.config.Config;
 import cn.jcyh.eaglekinglockdemo.utils.DigitUtil;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -29,6 +31,23 @@ class CommonHttpRequest implements IHttpRequest {
     CommonHttpRequest(RequestService requestService) {
         mRequestService = requestService;
         mGson = new Gson();
+    }
+
+    @Override
+    public void login(String account, String pwd, OnHttpRequestCallback listener) {
+
+    }
+
+    @Override
+    public void auth(String userName, String pwd, OnHttpRequestCallback listener) {
+        Observable<Response<ResponseBody>> auth = mRequestService.auth(Config.CLIENT_ID, Config.CLIENT_SECRET, "password", userName, DigitUtil.getMD5(pwd), Config.REDIRECT_URI);
+        enqueue3(auth, User.class, listener);
+    }
+
+    @Override
+    public void syncData(long lastUpdateDate, String accessToken, OnHttpRequestCallback listener) {
+        Observable<Response<ResponseBody>> syncData = mRequestService.syncData(Config.CLIENT_ID, accessToken, lastUpdateDate, System.currentTimeMillis());
+        enqueue3(syncData, SyncData.class, listener);
     }
 
     /**
@@ -84,6 +103,7 @@ class CommonHttpRequest implements IHttpRequest {
                     @Override
                     public void accept(HttpResult<T> tHttpResult) throws Exception {
                         if (listener != null) {
+                            Timber.e("--------httpresult:" + tHttpResult);
                             if (tHttpResult.getCode() == 200)
                                 listener.onSuccess(tHttpResult.getData());
                             else
@@ -100,14 +120,67 @@ class CommonHttpRequest implements IHttpRequest {
                 });
     }
 
-    @Override
-    public void login(String account, String pwd, OnHttpRequestCallback listener) {
-
+    private <T> void enqueue3(final Observable<Response<ResponseBody>> call, final Class<T> clazz, final OnHttpRequestCallback<T>
+            listener) {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+        call.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Response<ResponseBody>>() {
+                    @Override
+                    public void accept(Response<ResponseBody> response) throws Exception {
+                String result = response.body().string();
+                        Timber.e("----------result:" + result);
+                        Class<T> type;
+//                        type = (Class<T>) ((ParameterizedType) clazz.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+                        if (listener != null) {
+                            Timber.e("--------result:" + result);
+                            listener.onSuccess(mGson.fromJson(result, clazz));
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Timber.e("----------onError3:" + throwable+mRequestService);
+                        if (listener != null)
+                            listener.onFailure(-1);
+                    }
+                });
     }
-
-    @Override
-    public void auth(String userName, String pwd, OnHttpRequestCallback listener) {
-        Observable<Response<ResponseBody>> auth = mRequestService.auth(Config.CLIENT_ID, Config.CLIENT_SECRET, "password", userName, DigitUtil.getMD5(pwd), Config.REDIRECT_URI);
-        enqueue(auth, listener);
-    }
+//        }).start();
+//
+//    }
+//    private <T> void enqueue3(final Observable<Response<ResponseBody>> call, final Class<T> clazz, final OnHttpRequestCallback<T>
+//            listener) {
+////        new Thread(new Runnable() {
+////            @Override
+////            public void run() {
+//                call.subscribeOn(Schedulers.io());
+//                call.observeOn(AndroidSchedulers.mainThread());
+//                call.subscribe(new Consumer<Response<ResponseBody>>() {
+//                    @Override
+//                    public void accept(Response<ResponseBody> response) throws Exception {
+//                        String result = response.body().string();
+//                        Timber.e("----------result:" + result);
+//                        Class<T> type;
+////                        type = (Class<T>) ((ParameterizedType) clazz.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+//                        if (listener != null) {
+//                            Timber.e("--------result:" + result);
+//                            listener.onSuccess(mGson.fromJson(result, clazz));
+//                        }
+//                    }
+//                }, new Consumer<Throwable>() {
+//                    @Override
+//                    public void accept(Throwable throwable) throws Exception {
+//                        Timber.e("----------onError3:" + throwable);
+//                        if (listener != null)
+//                            listener.onFailure(-1);
+//                    }
+//                });
+//            }
+////        }).start();
+////
+////    }
 }

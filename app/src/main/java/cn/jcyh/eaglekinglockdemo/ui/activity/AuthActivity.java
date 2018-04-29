@@ -6,6 +6,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.lock.bl.sdk.util.Timber;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -16,7 +17,6 @@ import cn.jcyh.eaglekinglockdemo.constant.Constants;
 import cn.jcyh.eaglekinglockdemo.http.HttpAction;
 import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
 import cn.jcyh.eaglekinglockdemo.utils.SharePreUtil;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
 
 //授权
@@ -54,7 +54,7 @@ public class AuthActivity extends BaseActivity {
                 Timber.e("----------user:" + user);
                 if (user != null) {
                     tvAuthAccessToken.setText(user.getAccess_token());
-                    tvAuthOpenid.setText(user.getOpenid());
+                    tvAuthOpenid.setText(user.getOpenid()+"");
                 }
                 SharePreUtil.getInstance(getApplicationContext()).setString(Constants.USER_INFO, new Gson().toJson(user));
             }

@@ -26,9 +26,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.ttlock.bl.sdk.service.BluetoothLeService"/>
+        <service android:name="com.lock.bl.sdk.service.BluetoothLeService"/>
 
         <activity android:name=".ui.activity.AuthActivity">
+        </activity>
+        <activity android:name=".ui.activity.OperateActivity">
         </activity>
     </application>
 

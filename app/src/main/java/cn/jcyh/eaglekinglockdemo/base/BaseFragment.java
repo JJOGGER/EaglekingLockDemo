@@ -11,13 +11,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lock.bl.sdk.util.Timber;
+
 import java.io.Serializable;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.utils.ScreenUtil;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
 
 /**
  * Created by jogger on 2017/3/15.

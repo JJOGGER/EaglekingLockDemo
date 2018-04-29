@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">EaglekingLockDemo</string>
+    <string-array name="operate">
+        <item>点击开门</item>
+        <item>设置管理码</item>
+        <item>设置清空码</item>
+        <item>设置锁时间</item>
+        <item>重置键盘密码</item>
+        <item>重置电子钥匙</item>
+        <item>重置锁</item>
+        <item>获取操作日志</item>
+        <item>获取锁时间</item>
+        <item>发送电子钥匙</item>
+        <item>获取密码</item>
+
+        <item>车位锁升(仅限车位锁)</item>
+        <item>车位锁降</item>
+        <item>固件升级</item>
+    </string-array>
 </resources>

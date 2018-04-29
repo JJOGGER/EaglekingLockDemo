@@ -50,4 +50,15 @@ public class User {
     public void setRefresh_token(String refresh_token) {
         this.refresh_token = refresh_token;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "access_token='" + access_token + '\'' +
+                ", openid=" + openid +
+                ", expires_in=" + expires_in +
+                ", scope='" + scope + '\'' +
+                ", refresh_token='" + refresh_token + '\'' +
+                '}';
+    }
 }

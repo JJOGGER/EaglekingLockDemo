@@ -23,5 +23,20 @@ public interface RequestService {
                                             @Field("username") String username,
                                             @Field("password") String password,
                                             @Field("redirect_uri") String redirect_uri
-                                            );
+    );
+
+    /**
+     * 同步钥匙数据 APP第一次同步数据，不需要传lastUpdateDate，服务端会返回全量的钥匙数据。
+     * @param clientId 注册时分配的app_id
+     * @param accessToken 访问令牌
+     * @param lastUpdateDate 最近同步时间(最后一次调用该接口，服务端返回的)，不传则返回全量的钥匙数据。
+     * @param date 当前时间（毫秒数）
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("/v3/key/syncData")
+    Observable<Response<ResponseBody>> syncData(@Field("clientId") String clientId,
+                                  @Field("accessToken") String accessToken,
+                                  @Field("lastUpdateDate") long lastUpdateDate,
+                                  @Field("date") long date);
 }

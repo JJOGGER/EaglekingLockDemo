@@ -18,19 +18,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MyAppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask">
+        </activity>
+
+        <service android:name="com.ttlock.bl.sdk.service.BluetoothLeService"/>
+        <service android:name="com.ttlock.bl.sdk.service.DfuService"/>
+
+        <activity android:name=".ui.activity.AuthActivity">
+        </activity>
+        <activity android:name=".ui.activity.OperateActivity">
+        </activity>
+        <activity android:name=".ui.activity.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <service android:name="com.lock.bl.sdk.service.BluetoothLeService"/>
-
-        <activity android:name=".ui.activity.AuthActivity">
+        <activity android:name=".ui.activity.ChooseLockActivity">
         </activity>
-        <activity android:name=".ui.activity.OperateActivity">
+        <activity android:name=".ui.activity.AddLockActivity">
         </activity>
     </application>
 

@@ -5,18 +5,17 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.lock.bl.sdk.util.Timber;
+import com.ttlock.bl.sdk.bean.LockUser;
+import com.ttlock.bl.sdk.http.LockHttpAction;
+import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import cn.jcyh.eaglekinglockdemo.MainActivity;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.bean.User;
-import cn.jcyh.eaglekinglockdemo.constant.Constants;
-import cn.jcyh.eaglekinglockdemo.http.HttpAction;
-import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
-import cn.jcyh.eaglekinglockdemo.utils.SharePreUtil;
+import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
 
 //授权
@@ -35,28 +34,41 @@ public class AuthActivity extends BaseActivity {
         return R.layout.activity_auth;
     }
 
-    @OnClick(R.id.tv_auth)
+    @OnClick({R.id.tv_login, R.id.tv_regist})
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_login:
+                login();
+                break;
+            case R.id.tv_regist:
+
+                break;
+        }
+    }
+
+    private void login() {
         final String userName = etAuthUser.getText().toString().trim();
         String pwd = etAuthPwd.getText().toString().trim();
         if (TextUtils.isEmpty(userName) || TextUtils.isEmpty(pwd)) {
             ToastUtil.showToast(getApplicationContext(), "不能为空");
             return;
         }
-        HttpAction.getHttpAction(this).auth(userName, pwd, new OnHttpRequestCallback<User>() {
+        LockHttpAction.getHttpAction(this).auth(userName, pwd, new OnHttpRequestCallback<LockUser>() {
             @Override
             public void onFailure(int errorCode) {
-
+                ToastUtil.showToast(getApplicationContext(), "发生错误，错误码" + errorCode);
             }
 
             @Override
-            public void onSuccess(User user) {
+            public void onSuccess(LockUser user) {
                 Timber.e("----------user:" + user);
                 if (user != null) {
                     tvAuthAccessToken.setText(user.getAccess_token());
-                    tvAuthOpenid.setText(user.getOpenid()+"");
+                    tvAuthOpenid.setText(user.getOpenid() + "");
                 }
-                SharePreUtil.getInstance(getApplicationContext()).setString(Constants.USER_INFO, new Gson().toJson(user));
+                ControlCenter.getControlCenter(getApplicationContext()).saveUserInfo(user);
+                startNewActivity(MainActivity.class);
+                finish();
             }
         });
     }

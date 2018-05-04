@@ -7,4 +7,5 @@ package cn.jcyh.eaglekinglockdemo.constant;
 public class Constants {
     public static final String USER_INFO = "user_info";
     public static final String KEY_LIST = "key_list";
+    public static final String LAST_UPDATE_DATE="last_update_date";
 }

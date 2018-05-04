@@ -1,5 +1,6 @@
 package cn.jcyh.eaglekinglockdemo.base;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -23,6 +24,7 @@ import cn.jcyh.eaglekinglockdemo.utils.StatusUtil;
 public abstract class BaseActivity extends AppCompatActivity {
     private static final int STATUS_COLOR = Color.parseColor("#3f000000");
     private Unbinder mBind;
+    private ProgressDialog mProgressDialog;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -62,6 +64,20 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 
     public abstract int getLayoutId();
+
+    public void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        }
+        mProgressDialog.setMessage("请稍候...");
+        mProgressDialog.show();
+    }
+
+    public void cancelProgressDialog() {
+        if (mProgressDialog != null)
+            mProgressDialog.cancel();
+    }
 
     /**
      * 是否开启沉浸式状态栏
@@ -157,6 +173,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        cancelProgressDialog();
         mBind.unbind();
     }
 }

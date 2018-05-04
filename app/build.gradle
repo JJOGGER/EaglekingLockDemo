@@ -24,6 +24,12 @@ android {
             jni.srcDirs = ['src/main/jni', 'src/main/jni/']
         }
     }
+    //添加本地仓库，并把libs目录作为仓库地址
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
 }
 
 dependencies {
@@ -45,5 +51,7 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.yanzhenjie:permission:2.0.0-rc4'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
-    compile project(':locklib')
+    compile 'no.nordicsemi.android:dfu:1.1.1'
+//    compile(name: 'ttlock-sdk-2.0', ext: 'aar')
+    compile project(path: ':locklib')
 }

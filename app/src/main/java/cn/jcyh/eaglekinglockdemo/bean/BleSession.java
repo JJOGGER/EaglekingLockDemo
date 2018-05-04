@@ -47,6 +47,9 @@ public class BleSession {
         this.password = password;
     }
 
+    private BleSession() {
+    }
+
     public static BleSession getInstance(Operation operation, String lockmac) {
         BleSession bleSession = new BleSession();
         bleSession.setOperation(operation);

@@ -1,6 +1,7 @@
 package cn.jcyh.eaglekinglockdemo.base;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,14 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.lock.bl.sdk.util.Timber;
-
 import java.io.Serializable;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.utils.ScreenUtil;
+import cn.jcyh.eaglekinglockdemo.utils.Timber;
 
 /**
  * Created by jogger on 2017/3/15.
@@ -30,6 +30,7 @@ public abstract class BaseFragment extends Fragment {
     public boolean mIsVisibleToUser;
     public boolean mIsViewCreated;
     private Unbinder mBind;
+    private ProgressDialog mProgressDialog;
 
     @Override
     public void onAttach(Context context) {
@@ -92,7 +93,18 @@ public abstract class BaseFragment extends Fragment {
     public void loadData() {
     }
 
-    public void existData(boolean existData) {
+    public void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(mActivity);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        }
+        mProgressDialog.setMessage("请稍候...");
+        mProgressDialog.show();
+    }
+
+    public void cancelProgressDialog() {
+        if (mProgressDialog != null)
+            mProgressDialog.cancel();
     }
 
     public void startNewActivity(Class cls) {
@@ -166,7 +178,8 @@ public abstract class BaseFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
 //        MyApp.getRefWatcher().watch(this);
-        mIsViewCreated=false;
+        mIsViewCreated = false;
+        cancelProgressDialog();
         mBind.unbind();
     }
 

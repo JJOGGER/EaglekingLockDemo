@@ -8,24 +8,22 @@ import android.view.View;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.google.gson.Gson;
-import com.lock.bl.sdk.util.Timber;
+import com.ttlock.bl.sdk.api.LockAPI;
+import com.ttlock.bl.sdk.bean.LockKey;
+import com.ttlock.bl.sdk.bean.LockUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import cn.jcyh.eaglekinglockdemo.MyApp;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.bean.BleSession;
-import cn.jcyh.eaglekinglockdemo.bean.LockKey;
-import cn.jcyh.eaglekinglockdemo.bean.User;
-import cn.jcyh.eaglekinglockdemo.constant.Constants;
 import cn.jcyh.eaglekinglockdemo.constant.Operate;
+import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
 import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
-import cn.jcyh.eaglekinglockdemo.utils.SharePreUtil;
+import cn.jcyh.eaglekinglockdemo.utils.Timber;
 
-import static cn.jcyh.eaglekinglockdemo.MyApp.mLockAPI;
 
 public class OperateActivity extends BaseActivity implements BaseQuickAdapter.OnItemClickListener {
     @BindView(R.id.rv_content)
@@ -35,7 +33,8 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
     private LockKey mKey;
     private ProgressDialog mProgressDialog;
     private BleSession bleSession;
-    private int openid;
+    private LockAPI mLockAPI;
+    private LockUser mLockUser;
 
     @Override
     public int getLayoutId() {
@@ -44,11 +43,12 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
 
     @Override
     protected void init() {
-        mOperas=new ArrayList<>();
+        mOperas = new ArrayList<>();
         String[] stringArray = getResources().getStringArray(R.array.operate);
         for (int i = 0; i < stringArray.length; i++) {
             mOperas.add(stringArray[i]);
         }
+        mLockAPI = LockAPI.getLockAPI(this);
         mKey = getIntent().getParcelableExtra("key");
         Timber.e("---------key:" + mKey);
         mAdapter = new BaseQuickAdapter<String, BaseViewHolder>(android.R.layout.simple_list_item_1, mOperas) {
@@ -62,8 +62,8 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
         mAdapter.setOnItemClickListener(this);
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage("请稍后...");
-        bleSession = MyApp.bleSession;
-        openid = new Gson().fromJson(SharePreUtil.getInstance(getApplicationContext()).getString(Constants.USER_INFO, ""), User.class).getOpenid();
+        bleSession = ControlCenter.sBleSession;
+        mLockUser = ControlCenter.getControlCenter(getApplicationContext()).getUserInfo();
     }
 
     @Override
@@ -73,10 +73,13 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
                 Timber.e("--------->点击开门:" + mLockAPI.isConnected(mKey.getLockMac()));
                 if (mLockAPI.isConnected(mKey.getLockMac())) {//当前处于连接状态 直接发指令
                     Timber.e("-----------mKey.isAdmin():" + mKey.isAdmin());
-//                    if (mKey.isAdmin()) {
-//                        mLockAPI.unlockByAdministrator(null, openid, mKey.getLockVersion().toString(), mKey.getAdminPwd(), mKey.getLockKey(), mKey.getLockFlagPos(), System.currentTimeMillis(), mKey.getAesKeystr(), mKey.getTimezoneRawOffset());
-//                    } else
-                        mLockAPI.unlockByUser(null, openid, mKey.getLockVersion().toString(), mKey.getStartDate(), mKey.getEndDate(), mKey.getLockKey(), mKey.getLockFlagPos(), mKey.getAesKeystr(), mKey.getTimezoneRawOffset());
+                    if (mKey.isAdmin()) {
+                        String version = new Gson().toJson(mKey.getLockVersion());
+                        Timber.e("-------version:" + version);
+                        mLockAPI.unlockByAdministrator(null, mLockUser.getOpenid(), version, mKey.getAdminPwd(), mKey.getLockKey(), mKey.getLockFlagPos(), System.currentTimeMillis(), mKey.getAesKeystr(), mKey.getTimezoneRawOffset());
+
+                    } else
+                        mLockAPI.unlockByUser(null, mLockUser.getOpenid(), mKey.getLockVersion().toString(), mKey.getStartDate(), mKey.getEndDate(), mKey.getLockKey(), mKey.getLockFlagPos(), mKey.getAesKeystr(), mKey.getTimezoneRawOffset());
                 } else {//未连接进行连接
                     mProgressDialog.show();
                     Timber.e("-----connect:" + mKey.getLockMac());

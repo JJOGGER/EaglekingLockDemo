@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/immersive"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white"
+              android:orientation="vertical">
+
+    <include layout="@layout/include_title_layout"/>
+
+    <TextView
+        android:id="@+id/tv_lock_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="20dp"
+        android:text="锁名称"
+        android:textColor="@color/black_333333"
+        android:textSize="18sp"/>
+
+    <FrameLayout
+        android:id="@+id/fl_unlock"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="60dp"
+        android:background="@mipmap/ic_rotate">
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:src="@mipmap/unlock"/>
+    </FrameLayout>
+
+    <View
+        android:id="@+id/v_line"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="50dp"
+        android:background="@color/gray_dcdcdc"/>
+
+    <RelativeLayout
+        android:id="@+id/rl_admin_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/tv_send_key"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_send_key"
+            android:gravity="center"
+            android:text="发送钥匙"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_send_pwd"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_toRightOf="@id/tv_send_key"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_send_passcode"
+            android:gravity="center"
+            android:text="发送密码"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_key_manage"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_toRightOf="@id/tv_send_pwd"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_key_manage"
+            android:gravity="center"
+            android:text="钥匙管理"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_pwd_manage"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/tv_key_manage"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_passcode_manage"
+            android:gravity="center"
+            android:text="密码管理"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_ic_card"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_send_key"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_ic_manage"
+            android:gravity="center"
+            android:text="IC卡"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_finger"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_send_key"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@id/tv_ic_card"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_passcode_manage"
+            android:gravity="center"
+            android:text="指纹"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_record"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_send_key"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@id/tv_finger"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_unlock_record"
+            android:gravity="center"
+            android:text="操作记录"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_set"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_send_key"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@id/tv_record"
+            android:drawablePadding="5dp"
+            android:drawableTop="@mipmap/icon_setting_item"
+            android:gravity="center"
+            android:text="设置"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_user_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/v_line"
+        android:layout_marginTop="10dp">
+
+    </RelativeLayout>
+</LinearLayout>

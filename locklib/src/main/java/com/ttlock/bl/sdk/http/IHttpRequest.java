@@ -16,4 +16,9 @@ interface IHttpRequest<T> {
     void syncData(long lastUpdateDate, String accessToken, final OnHttpRequestCallback<T> listener);
 
     void initLock(LockKey lockKey, final OnHttpRequestCallback<T> listener);
+
+    void sendKey(String accessToken, int lockId, String receiverUsername, long startDate,
+                 long endDate, String remarks,long date, final OnHttpRequestCallback<T> listener);
+
+    void getPwd(String accessToken, int lockId, int keyboardPwdVersion, int keyboardPwdType, long startTime, long endDate, long date, final OnHttpRequestCallback<T> listener);
 }

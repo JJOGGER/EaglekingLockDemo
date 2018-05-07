@@ -41,6 +41,10 @@
         </activity>
         <activity android:name=".ui.activity.AddLockActivity">
         </activity>
+        <activity android:name=".ui.activity.SendKeyActivity">
+        </activity>
+        <activity android:name=".ui.activity.SendPwdActivity">
+        </activity>
     </application>
 
 </manifest>

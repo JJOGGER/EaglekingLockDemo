@@ -20,6 +20,8 @@ import cn.jcyh.eaglekinglockdemo.base.BaseFragment;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
 import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
+import cn.jcyh.eaglekinglockdemo.ui.activity.SendKeyActivity;
+import cn.jcyh.eaglekinglockdemo.ui.activity.SendPwdActivity;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
 
 /**
@@ -47,6 +49,7 @@ public class LockMainFragment extends BaseFragment {
     public void init() {
         mLockAPI = LockAPI.getLockAPI(mActivity);
         mLockKey = getArguments().getParcelable("key");
+        tvLockName.setText(mLockKey.getLockName() + "");
         mOpenid = ControlCenter.getControlCenter(mActivity).getUserInfo().getOpenid();
         mReceiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -64,8 +67,10 @@ public class LockMainFragment extends BaseFragment {
                 unlock();
                 break;
             case R.id.tv_send_key:
+                startNewActivity(SendKeyActivity.class, "key", mLockKey);
                 break;
             case R.id.tv_send_pwd:
+                startNewActivity(SendPwdActivity.class, "key", mLockKey);
                 break;
             case R.id.tv_key_manage:
                 break;

@@ -67,4 +67,26 @@ public interface RequestService {
                                                 @Field("hardwareRevision") String hardwareRevision,
                                                 @Field("firmwareRevision") String firmwareRevision,
                                                 @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/key/send")
+    Observable<Response<ResponseBody>> sendKey(@Field("clientId") String clientId,
+                                               @Field("accessToken") String accessToken,
+                                               @Field("lockId") int lockId,
+                                               @Field("receiverUsername") String receiverUsername,
+                                               @Field("startDate") long startDate,
+                                               @Field("endDate") long endDate,
+                                               @Field("remarks") String remarks,
+                                               @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/keyboardPwd/get")
+    Observable<Response<ResponseBody>> getPwd(@Field("clientId") String clientId,
+                                              @Field("accessToken") String accessToken,
+                                              @Field("lockId") int lockId,
+                                              @Field("keyboardPwdVersion") int keyboardPwdVersion,
+                                              @Field("keyboardPwdType") int keyboardPwdType,
+                                              @Field("startDate") long startDate,
+                                              @Field("endDate") long endDate,
+                                              @Field("date") long date);
 }

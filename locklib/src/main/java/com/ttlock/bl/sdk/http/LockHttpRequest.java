@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.ttlock.bl.sdk.bean.LockKey;
+import com.ttlock.bl.sdk.bean.LockKeyboardPwd;
 import com.ttlock.bl.sdk.bean.LockUser;
 import com.ttlock.bl.sdk.bean.SyncData;
 import com.ttlock.bl.sdk.config.LockConfig;
@@ -49,7 +50,8 @@ class LockHttpRequest implements IHttpRequest {
 
     @Override
     public void initLock(LockKey lockKey, OnHttpRequestCallback listener) {
-        Observable<Response<ResponseBody>> initLock = mRequestService.initLock(LockConfig.CLIENT_ID,
+        Observable<Response<ResponseBody>> initLock = mRequestService.initLock(
+                LockConfig.CLIENT_ID,
                 lockKey.getAccessToken(),
                 lockKey.getLockName(),
                 lockKey.getLockAlias(),
@@ -69,7 +71,20 @@ class LockHttpRequest implements IHttpRequest {
                 lockKey.getHardwareRevision(),
                 lockKey.getFirmwareRevision(),
                 System.currentTimeMillis());
-        enqueue(initLock, listener);
+        enqueue(initLock,  listener);
+    }
+
+    @Override
+    public void sendKey(String accessToken, int lockId, String receiverUsername, long startDate, long endDate, String remarks, long date, OnHttpRequestCallback listener) {
+        Observable<Response<ResponseBody>> sendKey = mRequestService.sendKey(LockConfig.CLIENT_ID,
+                accessToken, lockId, receiverUsername, startDate, endDate, remarks, date);
+        enqueue(sendKey, listener);
+    }
+
+    @Override
+    public void getPwd(String accessToken, int lockId, int keyboardPwdVersion, int keyboardPwdType, long startTime, long endDate, long date, OnHttpRequestCallback listener) {
+        Observable<Response<ResponseBody>> getPwd = mRequestService.getPwd(LockConfig.CLIENT_ID, accessToken, lockId, keyboardPwdVersion, keyboardPwdType, startTime, endDate, date);
+        enqueue(getPwd, LockKeyboardPwd.class,listener);
     }
 
 

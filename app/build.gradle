@@ -52,6 +52,8 @@ dependencies {
     compile 'com.yanzhenjie:permission:2.0.0-rc4'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
     compile 'no.nordicsemi.android:dfu:1.1.1'
+    compile 'com.contrarywind:Android-PickerView:4.1.3'
+    compile 'com.android.support:design:26.+'
 //    compile(name: 'ttlock-sdk-2.0', ext: 'aar')
     compile project(path: ':locklib')
 }

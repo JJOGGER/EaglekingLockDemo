@@ -18,7 +18,11 @@ interface IHttpRequest<T> {
     void initLock(LockKey lockKey, final OnHttpRequestCallback<T> listener);
 
     void sendKey(String accessToken, int lockId, String receiverUsername, long startDate,
-                 long endDate, String remarks,long date, final OnHttpRequestCallback<T> listener);
+                 long endDate, String remarks, long date, final OnHttpRequestCallback<T> listener);
 
     void getPwd(String accessToken, int lockId, int keyboardPwdVersion, int keyboardPwdType, long startTime, long endDate, long date, final OnHttpRequestCallback<T> listener);
+
+    void customPwd(String accessToken, int lockId, String keyboardPwd, long startDate, long endDate, int addType, long date, OnHttpRequestCallback<T> listener);
+
+    void getLockKeys(String accessToken, int lockId, int pageNo, int pageSize, long date, OnHttpRequestCallback<T> listener);
 }

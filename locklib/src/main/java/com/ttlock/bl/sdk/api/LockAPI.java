@@ -211,6 +211,9 @@ public class LockAPI {
         Constant.VENDOR = vendor;
     }
 
+    /**
+     * 添加管理员
+     */
     public void addAdministrator(ExtendedBluetoothDevice extendedBluetoothDevice) {
         int lockType = extendedBluetoothDevice.getLockType();
         if (lockType > 3 && !extendedBluetoothDevice.isSettingMode()) {

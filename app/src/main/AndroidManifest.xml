@@ -45,6 +45,10 @@
         </activity>
         <activity android:name=".ui.activity.SendPwdActivity">
         </activity>
+        <activity android:name=".ui.activity.KeyManagerActivity">
+        </activity>
+        <activity android:name=".ui.activity.KeyInfoActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -2,6 +2,7 @@ package cn.jcyh.eaglekinglockdemo.callback;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
@@ -77,6 +78,7 @@ public class MyLockCallback implements LockCallback {
                     if (extendedBluetoothDevice.isTouch())
                         mLockAPI.connect(extendedBluetoothDevice);
                     break;
+                case CUSTOM_PWD:
                 case SET_ADMIN_KEYBOARD_PASSWORD:
                 case SET_DELETE_PASSWORD:
                 case SET_LOCK_TIME:
@@ -128,14 +130,29 @@ public class MyLockCallback implements LockCallback {
                             localKey.getAdminPwd(), localKey.getLockKey(), localKey.getLockFlagPos(), System.currentTimeMillis(),
                             localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
                 } else {
-                    mLockAPI.unlockByUser(extendedBluetoothDevice, mUser.getOpenid(),localKey.getLockVersion(),
+                    mLockAPI.unlockByUser(extendedBluetoothDevice, mUser.getOpenid(), localKey.getLockVersion(),
                             localKey.getStartDate(), localKey.getEndDate(), localKey.getLockKey(),
                             localKey.getLockFlagPos(), localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
                 }
                 break;
-//                case SET_ADMIN_KEYBOARD_PASSWORD://管理码
-//                    mTTTTLockAPI.setAdminKeyboardPassword(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getUnlockKey(), curKey.getLockFlagPos(), curKey.getAesKeystr(), bleSession.getPassword());
-//                    break;
+            case SET_ADMIN_KEYBOARD_PASSWORD://管理码
+//                    mLockAPI.setAdminKeyboardPassword(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getUnlockKey(), curKey.getLockFlagPos(), curKey.getAesKeystr(), bleSession.getPassword());
+                break;
+            case CUSTOM_PWD:
+                Bundle argments = ControlCenter.sBleSession.getArgments();
+                mLockAPI.addPeriodKeyboardPassword(extendedBluetoothDevice,
+                        mUser.getOpenid(),
+                        localKey.getLockVersion(),
+                        localKey.getAdminPwd(),
+                        localKey.getLockKey(),
+                        localKey.getLockFlagPos(),
+                        argments.getString("pwd"),
+                        argments.getLong("startTime"),
+                        argments.getLong("endTime"),
+                        localKey.getAesKeystr(),
+                        localKey.getTimezoneRawOffset()
+                );
+                break;
 //                case SET_DELETE_PASSWORD://删除码
 //                    mTTTTLockAPI.setDeletePassword(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getUnlockKey(), curKey.getLockFlagPos(), curKey.getAesKeystr(), bleSession.getPassword());
 //                    break;
@@ -271,9 +288,12 @@ public class MyLockCallback implements LockCallback {
     }
 
     @Override
-    public void onAddKeyboardPassword(ExtendedBluetoothDevice var1, int var2, String var3,
-                                      long var4, long var6, Error var8) {
+    public void onAddKeyboardPassword(ExtendedBluetoothDevice var1, int var2, String customPwd,
+                                      long startTime, long endTime, Error error) {
         Timber.e("-----------onAddKeyboardPassword");
+        Intent intent = new Intent(LockConstant.ACTION_CUSTOM_PWD);
+        intent.putExtra(LockConstant.ERROR_MSG, error.getErrorMsg());
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override

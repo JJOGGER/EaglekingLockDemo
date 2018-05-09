@@ -52,6 +52,11 @@ public class LockKey implements Parcelable {
     private String hardwareRevision;//锁硬件版本号
     String firmwareRevision;//锁固件版本号
 
+    private String username;
+    private String senderUsername;
+    private int openid;
+    private long date;
+
     public LockKey() {
     }
 
@@ -373,6 +378,46 @@ public class LockKey implements Parcelable {
         this.firmwareRevision = firmwareRevision;
     }
 
+    public String getAesKeyStr() {
+        return aesKeyStr;
+    }
+
+    public void setAesKeyStr(String aesKeyStr) {
+        this.aesKeyStr = aesKeyStr;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getSenderUsername() {
+        return senderUsername;
+    }
+
+    public void setSenderUsername(String senderUsername) {
+        this.senderUsername = senderUsername;
+    }
+
+    public int getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(int openid) {
+        this.openid = openid;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
     @Override
     public String toString() {
         return "LockKey{" +
@@ -405,6 +450,10 @@ public class LockKey implements Parcelable {
                 ", modelNumber='" + modelNumber + '\'' +
                 ", hardwareRevision='" + hardwareRevision + '\'' +
                 ", firmwareRevision='" + firmwareRevision + '\'' +
+                ", username='" + username + '\'' +
+                ", senderUsername='" + senderUsername + '\'' +
+                ", openid=" + openid + '\'' +
+                ", date=" + date +
                 '}';
     }
 }

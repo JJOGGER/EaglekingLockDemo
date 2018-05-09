@@ -89,4 +89,24 @@ public interface RequestService {
                                               @Field("startDate") long startDate,
                                               @Field("endDate") long endDate,
                                               @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/keyboardPwd/add")
+    Observable<Response<ResponseBody>> customPwd(@Field("clientId") String clientId,
+                                                 @Field("accessToken") String accessToken,
+                                                 @Field("lockId") int lockId,
+                                                 @Field("keyboardPwd") String keyboardPwd,
+                                                 @Field("startDate") long startDate,
+                                                 @Field("endDate") long endDate,
+                                                 @Field("addType") int addType,
+                                                 @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lock/listKey")
+    Observable<Response<ResponseBody>> getLockKeys(@Field("clientId") String clientId,
+                                                   @Field("accessToken") String accessToken,
+                                                   @Field("lockId") int lockId,
+                                                   @Field("pageNo") int pageNo,
+                                                   @Field("pageSize") int pageSize,
+                                                   @Field("date") long date);
 }

@@ -107,6 +107,10 @@ public abstract class BaseFragment extends Fragment {
             mProgressDialog.cancel();
     }
 
+    public boolean isShowingDialog() {
+        return mProgressDialog != null && mProgressDialog.isShowing();
+    }
+
     public void startNewActivity(Class cls) {
         Intent intent = new Intent(mActivity, cls);
         startActivity(intent);

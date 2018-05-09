@@ -11,6 +11,7 @@ public enum Operation {
      */
     UNLOCK,
 
+    CUSTOM_PWD,
     /**
      * 重置键盘密码
      */

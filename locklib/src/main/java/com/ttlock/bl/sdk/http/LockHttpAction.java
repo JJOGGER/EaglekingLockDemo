@@ -2,6 +2,7 @@ package com.ttlock.bl.sdk.http;
 
 import android.content.Context;
 
+import com.ttlock.bl.sdk.bean.KeyResult;
 import com.ttlock.bl.sdk.bean.LockKey;
 import com.ttlock.bl.sdk.bean.LockKeyboardPwd;
 import com.ttlock.bl.sdk.bean.LockUser;
@@ -64,7 +65,7 @@ public class LockHttpAction extends BaseHttpAction {
      * @param remarks          备注
      */
     public void sendKey(String accessToken, int lockId, String receiverUsername, long startDate, long endDate, String remarks, OnHttpRequestCallback<Boolean> listener) {
-        mHttpRequest.sendKey(accessToken, lockId, receiverUsername, startDate, endDate, remarks, System.currentTimeMillis(),listener);
+        mHttpRequest.sendKey(accessToken, lockId, receiverUsername, startDate, endDate, remarks, System.currentTimeMillis(), listener);
     }
 
     /**
@@ -78,5 +79,19 @@ public class LockHttpAction extends BaseHttpAction {
      */
     public void getPwd(String accessToken, int lockId, int keyboardPwdType, long startDate, long endDate, OnHttpRequestCallback<LockKeyboardPwd> listener) {
         mHttpRequest.getPwd(accessToken, lockId, 4, keyboardPwdType, startDate, endDate, System.currentTimeMillis(), listener);
+    }
+
+    public void customPwd(String accessToken, int lockId, String keyboardPwd, long startDate, long endDate, OnHttpRequestCallback<LockKeyboardPwd> listener) {
+        mHttpRequest.customPwd(accessToken, lockId, keyboardPwd, startDate, endDate, 1, System.currentTimeMillis(), listener);
+    }
+
+    /**
+     * 获取锁钥匙列表
+     *
+     * @param pageNo   页码，从1开始
+     * @param pageSize 每页数量，默认20，最大100
+     */
+    public void getLockKeys(String accessToken, int lockId, int pageNo, int pageSize, OnHttpRequestCallback<KeyResult> listener) {
+        mHttpRequest.getLockKeys(accessToken, lockId, pageNo, pageSize, System.currentTimeMillis(), listener);
     }
 }

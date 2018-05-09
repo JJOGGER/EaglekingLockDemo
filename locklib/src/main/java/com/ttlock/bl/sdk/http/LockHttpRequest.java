@@ -3,12 +3,20 @@ package com.ttlock.bl.sdk.http;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.ttlock.bl.sdk.bean.KeyResult;
 import com.ttlock.bl.sdk.bean.LockKey;
 import com.ttlock.bl.sdk.bean.LockKeyboardPwd;
 import com.ttlock.bl.sdk.bean.LockUser;
 import com.ttlock.bl.sdk.bean.SyncData;
 import com.ttlock.bl.sdk.config.LockConfig;
 import com.ttlock.bl.sdk.util.DigitUtil;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -71,7 +79,7 @@ class LockHttpRequest implements IHttpRequest {
                 lockKey.getHardwareRevision(),
                 lockKey.getFirmwareRevision(),
                 System.currentTimeMillis());
-        enqueue(initLock,  listener);
+        enqueue(initLock, listener);
     }
 
     @Override
@@ -84,7 +92,19 @@ class LockHttpRequest implements IHttpRequest {
     @Override
     public void getPwd(String accessToken, int lockId, int keyboardPwdVersion, int keyboardPwdType, long startTime, long endDate, long date, OnHttpRequestCallback listener) {
         Observable<Response<ResponseBody>> getPwd = mRequestService.getPwd(LockConfig.CLIENT_ID, accessToken, lockId, keyboardPwdVersion, keyboardPwdType, startTime, endDate, date);
-        enqueue(getPwd, LockKeyboardPwd.class,listener);
+        enqueue(getPwd, LockKeyboardPwd.class, listener);
+    }
+
+    @Override
+    public void customPwd(String accessToken, int lockId, String keyboardPwd, long startDate, long endDate, int addType, long date, OnHttpRequestCallback listener) {
+        Observable<Response<ResponseBody>> customPwd = mRequestService.customPwd(LockConfig.CLIENT_ID, accessToken, lockId, keyboardPwd, startDate, endDate, addType, date);
+        enqueue(customPwd, LockKeyboardPwd.class, listener);
+    }
+
+    @Override
+    public void getLockKeys(String accessToken, int lockId, int pageNo, int pageSize, long date, OnHttpRequestCallback listener) {
+        Observable<Response<ResponseBody>> getLockKeys = mRequestService.getLockKeys(LockConfig.CLIENT_ID, accessToken, lockId, pageNo, pageSize, System.currentTimeMillis());
+        enqueue(getLockKeys, KeyResult.class, listener);
     }
 
 
@@ -104,6 +124,40 @@ class LockHttpRequest implements IHttpRequest {
                                 listener.onFailure(httpError.getErrcode());
                             } else {
                                 listener.onSuccess(mGson.fromJson(result, clazz));
+                            }
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e(TAG, "-------onError:" + throwable + mRequestService);
+                        if (listener != null)
+                            listener.onFailure(-1);
+                    }
+                });
+    }
+
+    //获取列表
+    private <T> void enqueues(final Observable<Response<ResponseBody>> call, final OnHttpRequestCallback<T>
+            listener) {
+        call.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Response<ResponseBody>>() {
+                    @Override
+                    public void accept(Response<ResponseBody> response) throws Exception {
+                        String result = response.body().string();
+                        Log.e(TAG, "---------result:" + result);
+                        if (listener != null) {
+                            HttpError httpError = mGson.fromJson(result, HttpError.class);
+                            if (httpError.getErrcode() != 0) {
+                                listener.onFailure(httpError.getErrcode());
+                            } else {
+                                JSONObject jsonObject = new JSONObject(result);
+                                JSONArray list = jsonObject.getJSONArray("list");
+                                Type type = new TypeToken<List<T>>() {
+                                }.getType();
+                                listener.onSuccess((T) mGson.fromJson(list.toString(), type));
                             }
                         }
                     }

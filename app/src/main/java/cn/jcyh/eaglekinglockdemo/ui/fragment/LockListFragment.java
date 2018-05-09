@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -66,7 +67,7 @@ public class LockListFragment extends BaseFragment {
         mAdapter = new BaseQuickAdapter<LockKey, BaseViewHolder>(android.R.layout.simple_list_item_1, mLockKeys) {
             @Override
             protected void convert(BaseViewHolder helper, LockKey item) {
-                helper.setText(android.R.id.text1, item.getLockName() + "");
+                helper.setText(android.R.id.text1, TextUtils.isEmpty(item.getLockAlias()) ? item.getLockName() + "" : item.getLockAlias());
             }
         };
         rvContent.setLayoutManager(new LinearLayoutManager(mActivity));

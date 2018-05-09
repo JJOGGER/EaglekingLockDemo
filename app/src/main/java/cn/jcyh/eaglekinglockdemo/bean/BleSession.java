@@ -1,6 +1,8 @@
 package cn.jcyh.eaglekinglockdemo.bean;
 
 
+import android.os.Bundle;
+
 import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
 
 /**
@@ -22,6 +24,8 @@ public class BleSession {
      * 密码
      */
     private String password;
+
+    private Bundle argments;
 
     public Operation getOperation() {
         return operation;
@@ -48,6 +52,14 @@ public class BleSession {
     }
 
     private BleSession() {
+    }
+
+    public void setArgments(Bundle bundle) {
+        argments = bundle;
+    }
+
+    public Bundle getArgments() {
+        return argments;
     }
 
     public static BleSession getInstance(Operation operation, String lockmac) {

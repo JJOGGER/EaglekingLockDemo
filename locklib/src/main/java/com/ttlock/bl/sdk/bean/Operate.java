@@ -1,4 +1,4 @@
-package cn.jcyh.eaglekinglockdemo.constant;
+package com.ttlock.bl.sdk.bean;
 
 /**
  * Created by TTLock on 2016/9/19 0019.

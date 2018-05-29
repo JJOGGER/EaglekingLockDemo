@@ -10,7 +10,6 @@ import android.view.View;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.api.LockAPI;
 import com.ttlock.bl.sdk.bean.LockKey;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
@@ -22,6 +21,7 @@ import butterknife.BindView;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseFragment;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
 import cn.jcyh.eaglekinglockdemo.utils.Timber;
 
 /**
@@ -33,7 +33,7 @@ public class LockListFragment extends BaseFragment {
     RecyclerView rvContent;
     private BaseQuickAdapter<LockKey, BaseViewHolder> mAdapter;
     private List<LockKey> mLockKeys;
-    private LockAPI mLockAPI;
+    private MyLockAPI mLockAPI;
 
     @Override
     public int getLayoutId() {
@@ -43,14 +43,13 @@ public class LockListFragment extends BaseFragment {
     @Override
     public void init() {
         //请求打开蓝牙
-        mLockAPI = LockAPI.getLockAPI(mActivity);
+        mLockAPI = MyLockAPI.getLockAPI();
         mLockAPI.requestBleEnable(mActivity);
 //        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 //        bluetoothAdapter.enable();
         mLockAPI.startBleService(mActivity);
         AndPermission.with(this)
-                .permission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                .permission(Manifest.permission.BLUETOOTH_ADMIN)
+                .permission(Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION)
                 .onGranted(new Action() {
                     @Override
                     public void onAction(List<String> permissions) {
@@ -95,6 +94,7 @@ public class LockListFragment extends BaseFragment {
         if (lockKeys != null)
             mAdapter.setNewData(lockKeys);
     }
+
 
     @Override
     public void onDestroy() {

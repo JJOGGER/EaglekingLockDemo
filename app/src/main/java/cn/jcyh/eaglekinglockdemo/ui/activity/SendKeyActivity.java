@@ -16,7 +16,6 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.bean.LockUser;
 import com.ttlock.bl.sdk.http.LockHttpAction;
 import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
@@ -27,7 +26,6 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
 import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
 
@@ -204,8 +202,7 @@ public class SendKeyActivity extends BaseActivity {
             mStartTime = System.currentTimeMillis();
             mEndTime = 1;
         }
-        LockUser userInfo = ControlCenter.getControlCenter(this).getUserInfo();
-        LockHttpAction.getHttpAction(this).sendKey(userInfo.getAccess_token(),
+        LockHttpAction.getHttpAction(this).sendKey(
                 mLockKey.getLockId(),
                 account,
                 mStartTime,

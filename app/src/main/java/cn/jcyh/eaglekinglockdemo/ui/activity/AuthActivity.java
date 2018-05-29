@@ -14,6 +14,7 @@ import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.MainActivity;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
+import cn.jcyh.eaglekinglockdemo.config.LockConfig;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
 import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
@@ -41,7 +42,7 @@ public class AuthActivity extends BaseActivity {
                 login();
                 break;
             case R.id.tv_regist:
-
+                startNewActivity(RegistActivity.class);
                 break;
         }
     }
@@ -53,7 +54,7 @@ public class AuthActivity extends BaseActivity {
             ToastUtil.showToast(getApplicationContext(), "不能为空");
             return;
         }
-        LockHttpAction.getHttpAction(this).auth(userName, pwd, new OnHttpRequestCallback<LockUser>() {
+        LockHttpAction.getHttpAction(this).auth("eagleking_"+userName, pwd, LockConfig.REDIRECT_URI, new OnHttpRequestCallback<LockUser>() {
             @Override
             public void onFailure(int errorCode) {
                 ToastUtil.showToast(getApplicationContext(), "发生错误，错误码" + errorCode);

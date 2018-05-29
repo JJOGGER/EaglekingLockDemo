@@ -8,20 +8,20 @@ import android.view.View;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.google.gson.Gson;
-import com.ttlock.bl.sdk.api.LockAPI;
 import com.ttlock.bl.sdk.bean.LockKey;
 import com.ttlock.bl.sdk.bean.LockUser;
+import com.ttlock.bl.sdk.bean.Operate;
+import com.ttlock.bl.sdk.constant.Operation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.bean.BleSession;
-import cn.jcyh.eaglekinglockdemo.constant.Operate;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
-import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
+import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
 import cn.jcyh.eaglekinglockdemo.utils.Timber;
 
 
@@ -32,8 +32,7 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
     private List<String> mOperas;
     private LockKey mKey;
     private ProgressDialog mProgressDialog;
-    private BleSession bleSession;
-    private LockAPI mLockAPI;
+    private MyLockAPI mLockAPI;
     private LockUser mLockUser;
 
     @Override
@@ -45,10 +44,8 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
     protected void init() {
         mOperas = new ArrayList<>();
         String[] stringArray = getResources().getStringArray(R.array.operate);
-        for (int i = 0; i < stringArray.length; i++) {
-            mOperas.add(stringArray[i]);
-        }
-        mLockAPI = LockAPI.getLockAPI(this);
+        Collections.addAll(mOperas, stringArray);
+        mLockAPI = MyLockAPI.getLockAPI();
         mKey = getIntent().getParcelableExtra("key");
         Timber.e("---------key:" + mKey);
         mAdapter = new BaseQuickAdapter<String, BaseViewHolder>(android.R.layout.simple_list_item_1, mOperas) {
@@ -62,7 +59,6 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
         mAdapter.setOnItemClickListener(this);
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage("请稍后...");
-        bleSession = ControlCenter.sBleSession;
         mLockUser = ControlCenter.getControlCenter(getApplicationContext()).getUserInfo();
     }
 
@@ -76,16 +72,13 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
                     if (mKey.isAdmin()) {
                         String version = new Gson().toJson(mKey.getLockVersion());
                         Timber.e("-------version:" + version);
-                        mLockAPI.unlockByAdministrator(null, mLockUser.getOpenid(), version, mKey.getAdminPwd(), mKey.getLockKey(), mKey.getLockFlagPos(), System.currentTimeMillis(), mKey.getAesKeystr(), mKey.getTimezoneRawOffset());
-
+                        mLockAPI.unlockByAdministrator(null,mKey);
                     } else
-                        mLockAPI.unlockByUser(null, mLockUser.getOpenid(), mKey.getLockVersion().toString(), mKey.getStartDate(), mKey.getEndDate(), mKey.getLockKey(), mKey.getLockFlagPos(), mKey.getAesKeystr(), mKey.getTimezoneRawOffset());
+                        mLockAPI.unlockByUser(null,  mKey);
                 } else {//未连接进行连接
                     mProgressDialog.show();
                     Timber.e("-----connect:" + mKey.getLockMac());
-                    mLockAPI.connect(mKey.getLockMac());
-                    bleSession.setOperation(Operation.CLICK_UNLOCK);
-                    bleSession.setLockmac(mKey.getLockMac());
+                    mLockAPI.connect(mKey.getLockMac(),Operation.LOCKCAR_DOWN);
                 }
                 break;
             //后面两个操作是车位锁独有操作

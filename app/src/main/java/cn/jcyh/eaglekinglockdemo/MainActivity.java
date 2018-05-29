@@ -19,6 +19,7 @@ import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
 import cn.jcyh.eaglekinglockdemo.ui.activity.AuthActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.ChooseLockActivity;
 import cn.jcyh.eaglekinglockdemo.ui.fragment.LockListFragment;
+import cn.jcyh.eaglekinglockdemo.ui.fragment.LockMainFragment;
 import cn.jcyh.eaglekinglockdemo.utils.Timber;
 
 public class MainActivity extends BaseActivity {
@@ -64,6 +65,16 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        mFragmentManager.beginTransaction()
+                .replace(R.id.fl_container, new LockListFragment(), LockListFragment.class.getName())
+                .commit();
+        syncData();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Timber.e("--------------onActivityResult");
         syncData();
     }
 
@@ -89,6 +100,9 @@ public class MainActivity extends BaseActivity {
                         SharePreUtil.getInstance(getApplicationContext()).setLong(Constants.LAST_UPDATE_DATE, syncData.getLastUpdateDate());
                         ControlCenter.getControlCenter(getApplicationContext()).saveLockKeys(syncData.getKeyList());
                         BaseFragment fragment = (BaseFragment) mFragmentManager.findFragmentByTag(LockListFragment.class.getName());
+                        if (fragment != null)
+                            fragment.loadData();
+                        fragment = (BaseFragment) mFragmentManager.findFragmentByTag(LockMainFragment.class.getName());
                         if (fragment != null)
                             fragment.loadData();
                     }

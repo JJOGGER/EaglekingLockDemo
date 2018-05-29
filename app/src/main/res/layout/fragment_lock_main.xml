@@ -112,7 +112,7 @@
             android:textSize="16sp"/>
 
         <TextView
-            android:id="@+id/tv_finger"
+            android:id="@+id/tv_fingerprint"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_send_key"
@@ -133,7 +133,7 @@
             android:layout_below="@id/tv_send_key"
             android:layout_marginRight="5dp"
             android:layout_marginTop="20dp"
-            android:layout_toRightOf="@id/tv_finger"
+            android:layout_toRightOf="@id/tv_fingerprint"
             android:drawablePadding="5dp"
             android:drawableTop="@mipmap/icon_unlock_record"
             android:gravity="center"

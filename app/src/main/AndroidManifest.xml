@@ -49,6 +49,28 @@
         </activity>
         <activity android:name=".ui.activity.KeyInfoActivity">
         </activity>
+        <activity android:name=".ui.activity.SettingActivity">
+        </activity>
+        <activity android:name=".ui.activity.RegistActivity">
+        </activity>
+        <activity android:name=".ui.activity.PwdManageActivity">
+        </activity>
+        <activity android:name=".ui.activity.ICManageActivity">
+        </activity>
+        <activity android:name=".ui.activity.AddICActivity">
+        </activity>
+        <activity android:name=".ui.activity.AddFingerprintActivity">
+        </activity>
+        <activity android:name=".ui.activity.FingerprintManageActivity">
+        </activity>
+        <activity android:name=".ui.activity.AddFingerprint2Activity">
+        </activity>
+        <activity android:name=".ui.activity.AddFingerprint3Activity">
+        </activity>
+        <activity android:name=".ui.activity.LockRecordActivity">
+        </activity>
+        <activity android:name=".ui.activity.LockClockActivity">
+        </activity>
     </application>
 
 </manifest>

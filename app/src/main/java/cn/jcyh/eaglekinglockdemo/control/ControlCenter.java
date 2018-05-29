@@ -9,9 +9,7 @@ import com.ttlock.bl.sdk.bean.LockUser;
 
 import java.util.List;
 
-import cn.jcyh.eaglekinglockdemo.bean.BleSession;
 import cn.jcyh.eaglekinglockdemo.constant.Constants;
-import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
 import cn.jcyh.eaglekinglockdemo.utils.SharePreUtil;
 
 /**
@@ -23,7 +21,6 @@ public class ControlCenter {
     private Gson mGson;
     private static Context sContext;
     public static LockKey sCurrentKey;//记录当前操作的key
-    public static BleSession sBleSession = BleSession.getInstance(Operation.UNLOCK, null);
 
     private ControlCenter() {
         mGson = new Gson();
@@ -38,6 +35,20 @@ public class ControlCenter {
             }
         }
         return sControlCenter;
+    }
+
+    public String getAccessToken() {
+        LockUser userInfo = getUserInfo();
+        if (userInfo != null)
+            return userInfo.getAccess_token();
+        return null;
+    }
+
+    public int getOpenId() {
+        LockUser userInfo = getUserInfo();
+        if (userInfo != null)
+            return userInfo.getOpenid();
+        return -1;
     }
 
     public void saveUserInfo(LockUser user) {

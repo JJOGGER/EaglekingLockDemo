@@ -10,8 +10,12 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.api.LockAPI;
 import com.ttlock.bl.sdk.bean.LockKey;
+import com.ttlock.bl.sdk.constant.Operation;
+import com.ttlock.bl.sdk.entity.Error;
+import com.ttlock.bl.sdk.util.DigitUtil;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -19,10 +23,16 @@ import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseFragment;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
-import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
+import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
+import cn.jcyh.eaglekinglockdemo.ui.activity.FingerprintManageActivity;
+import cn.jcyh.eaglekinglockdemo.ui.activity.ICManageActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.KeyManagerActivity;
+import cn.jcyh.eaglekinglockdemo.ui.activity.LockRecordActivity;
+import cn.jcyh.eaglekinglockdemo.ui.activity.PwdManageActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.SendKeyActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.SendPwdActivity;
+import cn.jcyh.eaglekinglockdemo.ui.activity.SettingActivity;
+import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
 
 /**
@@ -36,9 +46,12 @@ public class LockMainFragment extends BaseFragment {
     RelativeLayout rlAdminView;
     @BindView(R.id.rl_user_view)
     RelativeLayout rlUserView;
-    private LockAPI mLockAPI;
+    @BindView(R.id.tv_ic_card)
+    TextView tvICCard;
+    @BindView(R.id.tv_fingerprint)
+    TextView tvFingerprint;
+    private MyLockAPI mLockAPI;
     private LockKey mLockKey;
-    private int mOpenid;
     private MyReceiver mReceiver;
 
     @Override
@@ -48,18 +61,33 @@ public class LockMainFragment extends BaseFragment {
 
     @Override
     public void init() {
-        mLockAPI = LockAPI.getLockAPI(mActivity);
+        mLockAPI = MyLockAPI.getLockAPI();
         mLockKey = getArguments().getParcelable("key");
         assert mLockKey != null;
-        tvLockName.setText(TextUtils.isEmpty(mLockKey.getLockAlias()) ? mLockKey.getLockName() + "" : mLockKey.getLockAlias());
-        mOpenid = ControlCenter.getControlCenter(mActivity).getUserInfo().getOpenid();
         mReceiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(LockConstant.ACTION_UNLOCK);
         LocalBroadcastManager.getInstance(mActivity).registerReceiver(mReceiver, intentFilter);
+        tvFingerprint.setVisibility(DigitUtil.isSupportFingerPrint(mLockKey.getSpecialValue()) ? View.VISIBLE : View.GONE);
+        tvICCard.setVisibility(DigitUtil.isSupportIC(mLockKey.getSpecialValue()) ? View.VISIBLE : View.GONE);
     }
 
-    @OnClick({R.id.ibtn_back, R.id.fl_unlock, R.id.tv_send_key, R.id.tv_send_pwd, R.id.tv_key_manage, R.id.tv_pwd_manage, R.id.tv_ic_card, R.id.tv_finger, R.id.tv_record, R.id.tv_set})
+    @Override
+    public void loadData() {
+        super.loadData();
+        Timber.e("--------------loadData");
+        List<LockKey> lockKeys = ControlCenter.getControlCenter(mActivity).getLockKeys();
+        if (lockKeys == null) return;
+        for (int i = 0; i < lockKeys.size(); i++) {
+            if (lockKeys.get(i).getLockId() == mLockKey.getLockId()) {
+                mLockKey = lockKeys.get(i);
+                break;
+            }
+        }
+        tvLockName.setText(TextUtils.isEmpty(mLockKey.getLockAlias()) ? mLockKey.getLockName() + "" : mLockKey.getLockAlias());
+    }
+
+    @OnClick({R.id.ibtn_back, R.id.fl_unlock, R.id.tv_send_key, R.id.tv_send_pwd, R.id.tv_key_manage, R.id.tv_pwd_manage, R.id.tv_ic_card, R.id.tv_fingerprint, R.id.tv_record, R.id.tv_set})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ibtn_back:
@@ -78,14 +106,21 @@ public class LockMainFragment extends BaseFragment {
                 startNewActivity(KeyManagerActivity.class, "key", mLockKey);
                 break;
             case R.id.tv_pwd_manage:
+                startNewActivity(PwdManageActivity.class, "key", mLockKey);
                 break;
             case R.id.tv_ic_card:
+                startNewActivity(ICManageActivity.class, "key", mLockKey);
                 break;
-            case R.id.tv_finger:
+            case R.id.tv_fingerprint:
+                startNewActivity(FingerprintManageActivity.class, "key", mLockKey);
                 break;
             case R.id.tv_record:
+                startNewActivity(LockRecordActivity.class,"key",mLockKey);
                 break;
             case R.id.tv_set:
+                Intent intent = new Intent(mActivity, SettingActivity.class);
+                intent.putExtra("key", mLockKey);
+                startActivityForResult(intent, 1);
                 break;
         }
     }
@@ -96,15 +131,18 @@ public class LockMainFragment extends BaseFragment {
     private void unlock() {
         if (mLockAPI.isConnected(mLockKey.getLockMac())) {
             if (mLockKey.isAdmin())
-                mLockAPI.unlockByAdministrator(mOpenid, mLockKey);
+                mLockAPI.unlockByAdministrator(null, mLockKey);
             else
-                mLockAPI.unlockByUser(mOpenid, mLockKey);
+                mLockAPI.unlockByUser(null, mLockKey);
         } else {
             showProgressDialog();
-            mLockAPI.connect(mLockKey.getLockMac());
-            ControlCenter.sBleSession.setOperation(Operation.CLICK_UNLOCK);
-            ControlCenter.sBleSession.setLockmac(mLockKey.getLockMac());
+            mLockAPI.connect(mLockKey.getLockMac(), Operation.LOCKCAR_DOWN);
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -122,7 +160,8 @@ public class LockMainFragment extends BaseFragment {
             switch (action) {
                 case LockConstant.ACTION_UNLOCK:
                     cancelProgressDialog();
-                    ToastUtil.showToast(mActivity, intent.getStringExtra(LockConstant.ERROR_MSG));
+                    Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
+                    ToastUtil.showToast(mActivity, error.getDescription());
                     break;
             }
         }

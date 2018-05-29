@@ -1,9 +1,8 @@
-package cn.jcyh.eaglekinglockdemo.bean;
+package com.ttlock.bl.sdk.bean;
 
 
 import android.os.Bundle;
 
-import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
 
 /**
  * Created by Administrator on 2016/7/15 0015.
@@ -13,7 +12,7 @@ public class BleSession {
     /**
      * 操作
      */
-    private Operation operation;
+    private String operation;
 
     /**
      * mac地址
@@ -27,11 +26,11 @@ public class BleSession {
 
     private Bundle argments;
 
-    public Operation getOperation() {
+    public String getOperation() {
         return operation;
     }
 
-    public void setOperation(Operation operation) {
+    public void setOperation(String operation) {
         this.operation = operation;
     }
 
@@ -62,7 +61,7 @@ public class BleSession {
         return argments;
     }
 
-    public static BleSession getInstance(Operation operation, String lockmac) {
+    public static BleSession getInstance(String operation, String lockmac) {
         BleSession bleSession = new BleSession();
         bleSession.setOperation(operation);
         bleSession.setLockmac(lockmac);

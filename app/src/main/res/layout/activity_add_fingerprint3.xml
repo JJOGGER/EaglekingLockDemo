@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/immersive"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context="cn.jcyh.eaglekinglockdemo.ui.activity.AddFingerprint3Activity">
+
+    <include layout="@layout/include_title_layout"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="25dp"
+        android:text="请将您的手指按下"
+        android:textColor="@color/black_333333"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/tv_fingerprint_pro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="4dp"
+        android:text="(0/4)"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp"/>
+
+    <ImageView
+        android:id="@+id/iv_fingerprint_pro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        android:src="@mipmap/fingerprint0"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="60dp"
+        android:text="根据提示，抬起手指后再按下，进行下一次指纹采集\n共采集4次"
+        android:textColor="@color/gray_888888"/>
+</LinearLayout>

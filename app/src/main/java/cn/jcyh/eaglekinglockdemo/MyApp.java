@@ -4,9 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
-import com.ttlock.bl.sdk.api.LockAPI;
-
 import cn.jcyh.eaglekinglockdemo.callback.MyLockCallback;
+import cn.jcyh.eaglekinglockdemo.config.LockConfig;
+import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
 import cn.jcyh.eaglekinglockdemo.utils.Timber;
 
 /**
@@ -22,7 +22,7 @@ public class MyApp extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-        LockAPI.initCallback(new MyLockCallback(this));
+        MyLockAPI.init(this, new MyLockCallback(this), LockConfig.CLIENT_ID, LockConfig.CLIENT_SECRET);
     }
 
     @Override

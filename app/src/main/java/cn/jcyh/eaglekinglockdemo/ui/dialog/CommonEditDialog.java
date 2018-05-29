@@ -18,6 +18,7 @@ public class CommonEditDialog extends BaseDialogFragment {
     EditText etContent;
     private String mHintContent = "";
     private String mEditText = "";
+    private int mInputType = -1;
 
     public String getHintContent() {
         return mHintContent;
@@ -47,13 +48,21 @@ public class CommonEditDialog extends BaseDialogFragment {
         mEditText = text;
     }
 
+    public void setInputType(int type) {
+        mInputType = type;
+    }
+
     @Override
     protected void init(View view) {
+        if (!TextUtils.isEmpty(mHintContent))
+            etContent.setHint(mHintContent);
         if (!TextUtils.isEmpty(mEditText)) {
             etContent.setText(mEditText);
             etContent.setSelectAllOnFocus(true);
 //            etContent.setSelection();
         }
+        if (mInputType != -1)
+            etContent.setInputType(mInputType);
     }
 
     public String getEditText() {

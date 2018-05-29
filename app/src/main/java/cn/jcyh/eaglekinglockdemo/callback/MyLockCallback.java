@@ -6,11 +6,10 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
-import com.google.gson.Gson;
-import com.ttlock.bl.sdk.api.LockAPI;
 import com.ttlock.bl.sdk.bean.LockKey;
 import com.ttlock.bl.sdk.bean.LockUser;
 import com.ttlock.bl.sdk.callback.LockCallback;
+import com.ttlock.bl.sdk.constant.Operation;
 import com.ttlock.bl.sdk.entity.Error;
 import com.ttlock.bl.sdk.http.LockHttpAction;
 import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
@@ -21,34 +20,52 @@ import java.util.TimeZone;
 
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
 import cn.jcyh.eaglekinglockdemo.ui.activity.AuthActivity;
 import cn.jcyh.eaglekinglockdemo.utils.Timber;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
 
-import static cn.jcyh.eaglekinglockdemo.enumtype.Operation.UNLOCK;
+import static com.ttlock.bl.sdk.constant.Operation.ADD_ADMIN;
+import static com.ttlock.bl.sdk.constant.Operation.ADD_FINGERPRINT;
+import static com.ttlock.bl.sdk.constant.Operation.ADD_IC_CARD;
+import static com.ttlock.bl.sdk.constant.Operation.CLEAR_FINGERPRINTS;
+import static com.ttlock.bl.sdk.constant.Operation.CLEAR_IC_CARD;
+import static com.ttlock.bl.sdk.constant.Operation.CUSTOM_PWD;
+import static com.ttlock.bl.sdk.constant.Operation.DELETE_IC_CARD;
+import static com.ttlock.bl.sdk.constant.Operation.GET_LOCK_TIME;
+import static com.ttlock.bl.sdk.constant.Operation.GET_OPERATE_LOG;
+import static com.ttlock.bl.sdk.constant.Operation.LOCKCAR_DOWN;
+import static com.ttlock.bl.sdk.constant.Operation.MODIFY_FINGERPRINT_PERIOD;
+import static com.ttlock.bl.sdk.constant.Operation.MODIFY_IC_PERIOD;
+import static com.ttlock.bl.sdk.constant.Operation.RESET_EKEY;
+import static com.ttlock.bl.sdk.constant.Operation.RESET_KEYBOARD_PASSWORD;
+import static com.ttlock.bl.sdk.constant.Operation.RESET_LOCK;
+import static com.ttlock.bl.sdk.constant.Operation.SEARCH_IC_NUMBER;
+import static com.ttlock.bl.sdk.constant.Operation.SET_ADMIN_KEYBOARD_PASSWORD;
+import static com.ttlock.bl.sdk.constant.Operation.SET_DELETE_PASSWORD;
+import static com.ttlock.bl.sdk.constant.Operation.SET_LOCK_TIME;
+
 
 /**
  * Created by jogger on 2018/4/27.
+ * 锁回调
  */
 
 public class MyLockCallback implements LockCallback {
     private Context mContext;
     private LockUser mUser;
-    private LockAPI mLockAPI;
     private final ControlCenter mControlCenter;
-    private Gson mGson;
     private LocalBroadcastManager mLocalBroadcastManager;
 
     public MyLockCallback(Context context) {
         mContext = context.getApplicationContext();
         mControlCenter = ControlCenter.getControlCenter(context);
-        mLockAPI = LockAPI.getLockAPI(context);
-        mGson = new Gson();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @Override
     public void onFoundDevice(ExtendedBluetoothDevice extendedBluetoothDevice) {
+        Timber.i("------------onFoundDevice");
         mUser = mControlCenter.getUserInfo();
         if (mUser == null || TextUtils.isEmpty(mUser.getAccess_token())) {
             mContext.startActivity(new Intent(mContext, AuthActivity.class));
@@ -73,10 +90,10 @@ public class MyLockCallback implements LockCallback {
             }
         }
         if (localKey != null) {
-            switch (ControlCenter.sBleSession.getOperation()) {
-                case UNLOCK:
+            switch (MyLockAPI.sBleSession.getOperation()) {
+                case LOCKCAR_DOWN:
                     if (extendedBluetoothDevice.isTouch())
-                        mLockAPI.connect(extendedBluetoothDevice);
+                        MyLockAPI.getLockAPI().connect(extendedBluetoothDevice);
                     break;
                 case CUSTOM_PWD:
                 case SET_ADMIN_KEYBOARD_PASSWORD:
@@ -87,8 +104,12 @@ public class MyLockCallback implements LockCallback {
                 case RESET_LOCK:
                 case GET_LOCK_TIME:
                 case GET_OPERATE_LOG:
-                    if (extendedBluetoothDevice.getAddress().equals(ControlCenter.sBleSession.getLockmac()))
-                        mLockAPI.connect(extendedBluetoothDevice);
+                    if (extendedBluetoothDevice.getAddress().equals(MyLockAPI.sBleSession.getLockmac()))
+                        MyLockAPI.getLockAPI().connect(extendedBluetoothDevice);
+                    break;
+                default:
+                    if (extendedBluetoothDevice.getAddress().equals(MyLockAPI.sBleSession.getLockmac()))
+                        MyLockAPI.getLockAPI().connect(extendedBluetoothDevice);
                     break;
             }
         }
@@ -96,17 +117,19 @@ public class MyLockCallback implements LockCallback {
 
     @Override
     public void onDeviceConnected(ExtendedBluetoothDevice extendedBluetoothDevice) {
-        Timber.e("--------onDeviceConnected:" + ControlCenter.sBleSession.getOperation());
+        Timber.e("--------onDeviceConnected:" + MyLockAPI.sBleSession.getOperation());
+        MyLockAPI lockAPI = MyLockAPI.getLockAPI();
         mUser = mControlCenter.getUserInfo();
+        Timber.e("-------mUser:" + mUser);
         if (mUser == null || TextUtils.isEmpty(mUser.getAccess_token())) {
             return;
         }
         //根据accessToken和lockmac获取钥匙
         List<LockKey> keys = mControlCenter.getLockKeys();
-        if (keys == null || keys.size() == 0) return;
+        if (keys == null && ADD_ADMIN.equals(MyLockAPI.sBleSession.getOperation()))
+            return;
         LockKey localKey = null;
-        Timber.e("------------user:" + mUser);
-        Timber.e("----------keys:" + keys);
+        assert keys != null;
         for (int i = 0; i < keys.size(); i++) {
             if (keys.get(i) == null) return;
             if (TextUtils.isEmpty(keys.get(i).getAccessToken()) || TextUtils.isEmpty(keys.get(i).getLockMac()))
@@ -116,78 +139,87 @@ public class MyLockCallback implements LockCallback {
                 break;
             }
         }
-        switch (ControlCenter.sBleSession.getOperation()) {
+        switch (MyLockAPI.sBleSession.getOperation()) {
             case ADD_ADMIN:
-                mLockAPI.addAdministrator(extendedBluetoothDevice);
+                Timber.e("----------ADD_ADMIN");
+                lockAPI.addAdministrator(extendedBluetoothDevice);
                 break;
-            case UNLOCK:
-            case CLICK_UNLOCK:
-                Timber.e("--------------CLICK_UNLOCK" + localKey);
+            case LOCKCAR_DOWN:
+                Timber.e("--------------UNLOCK" + localKey);
                 if (localKey == null) return;
                 //本地存在锁
                 if (localKey.isAdmin()) {
-                    mLockAPI.unlockByAdministrator(extendedBluetoothDevice, mUser.getOpenid(), localKey.getLockVersion(),
-                            localKey.getAdminPwd(), localKey.getLockKey(), localKey.getLockFlagPos(), System.currentTimeMillis(),
-                            localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
+                    lockAPI.unlockByAdministrator(extendedBluetoothDevice, localKey);
                 } else {
-                    mLockAPI.unlockByUser(extendedBluetoothDevice, mUser.getOpenid(), localKey.getLockVersion(),
-                            localKey.getStartDate(), localKey.getEndDate(), localKey.getLockKey(),
-                            localKey.getLockFlagPos(), localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
+                    lockAPI.unlockByUser(extendedBluetoothDevice, localKey);
                 }
                 break;
             case SET_ADMIN_KEYBOARD_PASSWORD://管理码
-//                    mLockAPI.setAdminKeyboardPassword(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getUnlockKey(), curKey.getLockFlagPos(), curKey.getAesKeystr(), bleSession.getPassword());
+                lockAPI.setAdminKeyboardPassword(extendedBluetoothDevice, localKey, MyLockAPI.sBleSession.getArgments().getString("password"));
                 break;
             case CUSTOM_PWD:
-                Bundle argments = ControlCenter.sBleSession.getArgments();
-                mLockAPI.addPeriodKeyboardPassword(extendedBluetoothDevice,
-                        mUser.getOpenid(),
-                        localKey.getLockVersion(),
-                        localKey.getAdminPwd(),
-                        localKey.getLockKey(),
-                        localKey.getLockFlagPos(),
-                        argments.getString("pwd"),
-                        argments.getLong("startTime"),
-                        argments.getLong("endTime"),
-                        localKey.getAesKeystr(),
-                        localKey.getTimezoneRawOffset()
-                );
+                if (localKey == null) return;
+                Bundle argments = MyLockAPI.sBleSession.getArgments();
+                localKey.setStartDate(argments.getLong("startTime"));
+                localKey.setEndDate(argments.getLong("endTime"));
+                lockAPI.addPeriodKeyboardPassword(extendedBluetoothDevice, argments.getString("pwd"), localKey);
                 break;
 //                case SET_DELETE_PASSWORD://删除码
 //                    mTTTTLockAPI.setDeletePassword(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getUnlockKey(), curKey.getLockFlagPos(), curKey.getAesKeystr(), bleSession.getPassword());
 //                    break;
-//                case SET_LOCK_TIME://设置锁时间
-//                    mTTTTLockAPI.setLockTime(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getUnlockKey(), System.currentTimeMillis(), curKey.getLockFlagPos(), curKey.getAesKeystr(), curKey.getTimezoneRawOffset());
-//                    break;
-//                case RESET_KEYBOARD_PASSWORD://重置键盘密码
-//                    mTTTTLockAPI.resetKeyboardPassword(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getUnlockKey(), curKey.getLockFlagPos(), curKey.getAesKeystr());
-//                    break;
-//                case RESET_EKEY://重置电子钥匙 锁标志位+1
-//                    mTTTTLockAPI.resetEKey(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getLockFlagPos() + 1, curKey.getAesKeystr());
-//                    break;
-//                case RESET_LOCK://重置锁
-//                    mTTTTLockAPI.resetLock(extendedBluetoothDevice, uid, curKey.getLockVersion(), curKey.getAdminPs(), curKey.getUnlockKey(), curKey.getLockFlagPos(), curKey.getAesKeystr());
-//                    break;
-//                case GET_OPERATE_LOG://获取操作日志
-//                    mTTTTLockAPI.getOperateLog(extendedBluetoothDevice, curKey.getLockVersion(), curKey.getAesKeystr(), localKey.getTimezoneRawOffset());
-//                    break;
-//                case GET_LOCK_TIME://获取锁时间
-//                    mTTTTLockAPI.getLockTime(extendedBluetoothDevice, curKey.getLockVersion(), curKey.getAesKeystr(), localKey.getTimezoneRawOffset());
-//                    break;
-//                case LOCKCAR_UP://车位锁升
-//                    if (localKey.isAdmin())
-//                        mTTTTLockAPI.lockByAdministrator(extendedBluetoothDevice, uid, localKey.getLockVersion(), localKey.getAdminPs(), localKey.getUnlockKey(), localKey.getLockFlagPos(), localKey.getAesKeystr());
-//                    else
-//                        mTTTTLockAPI.lockByUser(extendedBluetoothDevice, uid, localKey.getLockVersion(), localKey.getStartDate(), localKey.getEndDate(), localKey.getUnlockKey(), localKey.getLockFlagPos(), localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
-////                    mTTTTLockAPI.lockByUser(extendedBluetoothDevice, 0, localKey.getLockVersion(), 1489990922165l, 1490077322165l, localKey.getUnlockKey(), localKey.getLockFlagPos(), localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
-//                    break;
-//                case LOCKCAR_DOWN://车位锁降
-//                    if (localKey.isAdmin())
-//                        mTTTTLockAPI.unlockByAdministrator(extendedBluetoothDevice, uid, localKey.getLockVersion(), localKey.getAdminPs(), localKey.getUnlockKey(), localKey.getLockFlagPos(), System.currentTimeMillis(), localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
-//                    else
-//                        mTTTTLockAPI.unlockByUser(extendedBluetoothDevice, uid, localKey.getLockVersion(), localKey.getStartDate(), localKey.getEndDate(), localKey.getUnlockKey(), localKey.getLockFlagPos(), localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
-////                    mTTTTLockAPI.unlockByUser(extendedBluetoothDevice, 0, localKey.getLockVersion(), 1489990922165l, 1490077322165l, localKey.getUnlockKey(), localKey.getLockFlagPos(), localKey.getAesKeystr(), localKey.getTimezoneRawOffset());
-//                    break;
+            case SET_LOCK_TIME://设置锁时间
+                if (localKey == null) return;
+                lockAPI.setLockTime(extendedBluetoothDevice, localKey);
+                break;
+            case RESET_KEYBOARD_PASSWORD://重置键盘密码
+                lockAPI.resetKeyboardPassword(extendedBluetoothDevice, localKey);
+                break;
+            case RESET_EKEY://重置电子钥匙 锁标志位+1
+                lockAPI.resetEKey(extendedBluetoothDevice, localKey);
+                break;
+            case RESET_LOCK://重置锁
+                if (localKey == null) return;
+                lockAPI.resetLock(extendedBluetoothDevice, localKey.getOpenid(), localKey.getLockVersion(), localKey.getAdminPwd(), localKey.getLockKey(), localKey.getLockFlagPos(), localKey.getAesKeystr());
+                break;
+            case ADD_IC_CARD:
+                if (localKey == null) return;
+                lockAPI.addICCard(extendedBluetoothDevice, localKey);
+                break;
+            case DELETE_IC_CARD:
+                if (localKey == null) return;
+                lockAPI.deleteICCard(extendedBluetoothDevice, MyLockAPI.sBleSession.getArgments().getLong("cardNo"), localKey);
+                break;
+            case MODIFY_IC_PERIOD:
+                if (localKey == null) return;
+                lockAPI.modifyICPeriod(extendedBluetoothDevice, MyLockAPI.sBleSession.getArgments().getLong("cardNo"), localKey);
+                break;
+            case SEARCH_IC_NUMBER:
+                if (localKey == null) return;
+                lockAPI.searchICCard(extendedBluetoothDevice, localKey);
+                break;
+            case CLEAR_IC_CARD:
+                if (localKey == null) return;
+                lockAPI.clearICCard(extendedBluetoothDevice, localKey);
+                break;
+            case ADD_FINGERPRINT:
+                if (localKey == null) return;
+                lockAPI.addFingerPrint(extendedBluetoothDevice, localKey);
+                break;
+            case MODIFY_FINGERPRINT_PERIOD:
+                if (localKey == null) return;
+                lockAPI.modifyFingerPrintPeriod(extendedBluetoothDevice, MyLockAPI.sBleSession.getArgments().getLong("FRNo"), localKey);
+                break;
+            case CLEAR_FINGERPRINTS:
+                lockAPI.clearFingerPrint(extendedBluetoothDevice, localKey);
+                break;
+            case GET_OPERATE_LOG://获取操作日志
+                lockAPI.getOperateLog(extendedBluetoothDevice, localKey);
+                break;
+            default:
+                break;
+            case GET_LOCK_TIME://获取锁时间
+                lockAPI.getLockTime(extendedBluetoothDevice, localKey);
+                break;
 //                case DELETE_ONE_KEYBOARDPASSWORD://这里的密码类型传0
 //                    mTTTTLockAPI.deleteOneKeyboardPassword(extendedBluetoothDevice, uid, localKey.getLockVersion(), localKey.getAdminPs(), localKey.getUnlockKey(), localKey.getLockFlagPos(), 0, bleSession.getPassword(), localKey.getAesKeystr());
 //                    break;
@@ -201,8 +233,6 @@ public class MyLockCallback implements LockCallback {
     @Override
     public void onDeviceDisconnected(ExtendedBluetoothDevice extendedBluetoothDevice) {
         Timber.e("-----------onDeviceDisconnected");
-        //默认是开门标志
-        ControlCenter.sBleSession.setOperation(UNLOCK);
         //断开连接
         Intent intent = new Intent(LockConstant.ACTION_BLE_DISCONNECTED);
         intent.putExtra(LockConstant.DEVICE, extendedBluetoothDevice);
@@ -214,7 +244,7 @@ public class MyLockCallback implements LockCallback {
     }
 
     @Override
-    public void onGetLockVersion(ExtendedBluetoothDevice var1, int var2, int var3, int var4,
+    public void onGetLockVersion(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, int var3, int var4,
                                  int var5, int var6, Error var7) {
         Timber.e("-----------onGetLockVersion");
     }
@@ -226,206 +256,286 @@ public class MyLockCallback implements LockCallback {
     }
 
     @Override
-    public void onResetEKey(ExtendedBluetoothDevice var1, int var2, Error var3) {
+    public void onResetEKey(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, Error error) {
         Timber.e("-----------onResetEKey");
+        Intent intent = new Intent(LockConstant.ACTION_RESET_KEY);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onSetLockName(ExtendedBluetoothDevice var1, String var2, Error var3) {
+    public void onSetLockName(ExtendedBluetoothDevice extendedBluetoothDevice, String var2, Error var3) {
         Timber.e("-----------onSetLockName");
     }
 
     @Override
-    public void onSetAdminKeyboardPassword(ExtendedBluetoothDevice var1, String var2, Error
-            var3) {
-        Timber.e("-----------onSetAdminKeyboardPassword");
+    public void onSetAdminKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, String adminCode, Error
+            error) {
+        Timber.e("-----------onSetAdminKeyboardPassword" + adminCode);
+        Intent intent = new Intent(LockConstant.ACTION_SET_ADMIN_PWD);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        intent.putExtra("password", adminCode);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onSetDeletePassword(ExtendedBluetoothDevice var1, String var2, Error var3) {
+    public void onSetDeletePassword(ExtendedBluetoothDevice extendedBluetoothDevice, String var2, Error var3) {
         Timber.e("-----------onSetDeletePassword");
     }
 
     @Override
     public void onUnlock(ExtendedBluetoothDevice extendedBluetoothDevice, int uid, int uniqueid, long lockTime, Error error) {
-        Timber.e("-----------onUnlock");
+        Timber.e("--------------onUnlock");
         Intent intent = new Intent(LockConstant.ACTION_UNLOCK);
-        intent.putExtra(LockConstant.ERROR_MSG, error.getErrorMsg());
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        mLocalBroadcastManager.sendBroadcast(intent);
+        MyLockAPI.getLockAPI().connect(extendedBluetoothDevice, Operation.GET_OPERATE_LOG);
+    }
+
+    @Override
+    public void onSetLockTime(ExtendedBluetoothDevice extendedBluetoothDevice, Error error) {
+        Timber.e("-----------onSetLockTime");
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_SYNC_TIME);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
         mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onSetLockTime(ExtendedBluetoothDevice var1, Error var2) {
-        Timber.e("-----------onSetLockTime");
-    }
-
-    @Override
-    public void onGetLockTime(ExtendedBluetoothDevice var1, long var2, Error var4) {
+    public void onGetLockTime(ExtendedBluetoothDevice extendedBluetoothDevice, long date, Error error) {
         Timber.e("-----------onGetLockTime");
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_GET_TIME);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        intent.putExtra("date", date);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onResetKeyboardPassword(ExtendedBluetoothDevice var1, String var2,
-                                        long var3, Error var5) {
+    public void onResetKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, String pwdInfo, long timestamp, Error error) {
         Timber.e("-----------onResetKeyboardPassword");
+        Intent intent = new Intent(LockConstant.ACTION_RESET_PWD);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        intent.putExtra("pwdInfo", pwdInfo);
+        intent.putExtra("timestamp", timestamp);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onSetMaxNumberOfKeyboardPassword(ExtendedBluetoothDevice var1, int var2, Error
+    public void onSetMaxNumberOfKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, Error
             var3) {
         Timber.e("-----------onSetMaxNumberOfKeyboardPassword");
     }
 
     @Override
-    public void onResetKeyboardPasswordProgress(ExtendedBluetoothDevice var1, int var2, Error
+    public void onResetKeyboardPasswordProgress(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, Error
             var3) {
         Timber.e("-----------onResetKeyboardPasswordProgress");
     }
 
     @Override
-    public void onResetLock(ExtendedBluetoothDevice var1, Error var2) {
+    public void onResetLock(ExtendedBluetoothDevice extendedBluetoothDevice, Error error) {
         Timber.e("-----------onResetLock");
+        Intent intent = new Intent(LockConstant.ACTION_RESET_LOCK);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        mLocalBroadcastManager.sendBroadcast(intent);
+
     }
 
     @Override
-    public void onAddKeyboardPassword(ExtendedBluetoothDevice var1, int var2, String customPwd,
+    public void onAddKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, String customPwd,
                                       long startTime, long endTime, Error error) {
         Timber.e("-----------onAddKeyboardPassword");
         Intent intent = new Intent(LockConstant.ACTION_CUSTOM_PWD);
-        intent.putExtra(LockConstant.ERROR_MSG, error.getErrorMsg());
+        intent.putExtra(LockConstant.ERROR_MSG, error);
         mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onModifyKeyboardPassword(ExtendedBluetoothDevice var1, int var2, String
+    public void onModifyKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, String
             var3, String var4, Error var5) {
         Timber.e("-----------onModifyKeyboardPassword");
     }
 
     @Override
-    public void onDeleteOneKeyboardPassword(ExtendedBluetoothDevice var1, int var2, String
+    public void onDeleteOneKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, String
             var3, Error var4) {
         Timber.e("-----------onDeleteOneKeyboardPassword");
     }
 
     @Override
-    public void onDeleteAllKeyboardPassword(ExtendedBluetoothDevice var1, Error var2) {
+    public void onDeleteAllKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, Error var2) {
         Timber.e("-----------onDeleteAllKeyboardPassword");
     }
 
     @Override
-    public void onGetOperateLog(ExtendedBluetoothDevice var1, String var2, Error var3) {
+    public void onGetOperateLog(ExtendedBluetoothDevice extendedBluetoothDevice, String records, Error error) {
         Timber.e("-----------onGetOperateLog");
+        if (Error.SUCCESS != error) return;
+        //根据accessToken和lockmac获取钥匙
+        List<LockKey> keys = mControlCenter.getLockKeys();
+        if (keys == null || keys.size() == 0) return;
+        LockKey localKey = null;
+        for (int i = 0; i < keys.size(); i++) {
+            if (keys.get(i) == null) return;
+            if (TextUtils.isEmpty(keys.get(i).getAccessToken()) || TextUtils.isEmpty(keys.get(i).getLockMac()))
+                continue;
+            if (keys.get(i).getAccessToken().equals(mUser.getAccess_token()) && keys.get(i).getLockMac().equals(extendedBluetoothDevice.getAddress())) {
+                localKey = keys.get(i);
+                break;
+            }
+        }
+        if (localKey == null) return;
+        Timber.e("----------records:" + records + "-->" + error);
+        LockHttpAction.getHttpAction(mContext).uploadLockRecords(localKey.getLockId(), records, null);
     }
 
     @Override
-    public void onSearchDeviceFeature(ExtendedBluetoothDevice var1, int var2, int var3, Error
+    public void onSearchDeviceFeature(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, int var3, Error
             var4) {
         Timber.e("-----------onSearchDeviceFeature");
     }
 
     @Override
-    public void onAddICCard(ExtendedBluetoothDevice var1, int var2, int var3, long var4, Error
-            var6) {
-        Timber.e("-----------onAddICCard");
+    public void onAddICCard(ExtendedBluetoothDevice extendedBluetoothDevice, int status, int battery, long cardNo, Error error) {
+        //onAddICCard2--9--1036620029
+        Timber.e("-----------onAddICCard" + status + "--" + battery + "--" + cardNo);
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_IC_CARD);
+        intent.putExtra("type", LockConstant.TYPE_ADD_IC_CARD);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        intent.putExtra("status", status);
+        intent.putExtra("cardNo", cardNo);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onModifyICCardPeriod(ExtendedBluetoothDevice var1, int var2, long var3,
-                                     long var5, long var7, Error var9) {
-        Timber.e("-----------onModifyICCardPeriod");
+    public void onModifyICCardPeriod(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, long cardNo, long startDate, long endDate, Error error) {
+        Timber.e("-----------onModifyICCardPeriod" + startDate + "-->" + endDate);
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_IC_CARD);
+        intent.putExtra("type", LockConstant.TYPE_MODIFY_IC_CARD);
+        intent.putExtra("cardNo", cardNo);
+        intent.putExtra("startDate", startDate);
+        intent.putExtra("endDate", endDate);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onDeleteICCard(ExtendedBluetoothDevice var1, int var2, long var3, Error var5) {
+    public void onDeleteICCard(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, long cardNo, Error error) {
         Timber.e("-----------onDeleteICCard");
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_IC_CARD);
+        intent.putExtra("type", LockConstant.TYPE_DELETE_IC_CARD);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        intent.putExtra("cardNo", cardNo);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onClearICCard(ExtendedBluetoothDevice var1, int var2, Error var3) {
+    public void onClearICCard(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, Error error) {
         Timber.e("-----------onClearICCard");
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_IC_CARD);
+        intent.putExtra("type", LockConstant.TYPE_CLEAR_IC_CARD);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onSetWristbandKeyToLock(ExtendedBluetoothDevice var1, int var2, Error var3) {
+    public void onSetWristbandKeyToLock(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, Error var3) {
         Timber.e("-----------onSetWristbandKeyToLock");
     }
 
     @Override
-    public void onSetWristbandKeyToDev(Error var1) {
+    public void onSetWristbandKeyToDev(Error error) {
         Timber.e("-----------onSetWristbandKeyToDev");
     }
 
     @Override
-    public void onSetWristbandKeyRssi(Error var1) {
+    public void onSetWristbandKeyRssi(Error error) {
         Timber.e("-----------onSetWristbandKeyRssi");
     }
 
     @Override
-    public void onAddFingerPrint(ExtendedBluetoothDevice var1, int var2, int var3,
-                                 long var4, Error var6) {
-        Timber.e("-----------onAddFingerPrint");
+    public void onAddFingerPrint(ExtendedBluetoothDevice extendedBluetoothDevice, int status, int battery, long fingerPrintNo, Error error) {
+//        Timber.e("-----------onAddFingerPrint:" + "status:" + status + "-->fingerPrintNo:" + fingerPrintNo + "error:" + error);
     }
 
     @Override
-    public void onAddFingerPrint(ExtendedBluetoothDevice var1, int var2, int var3, long var4,
-                                 int var6, Error var7) {
-        Timber.e("-----------onAddFingerPrint");
+    public void onAddFingerPrint(ExtendedBluetoothDevice extendedBluetoothDevice, int status, int bery, long fingerPrintNo, int maxVail, Error error) {
+        Timber.e("-----------onAddFingerPrint:" + "status:" + status + "-->fingerPrintNo:" + fingerPrintNo + "-->maxVail:" + maxVail + "error:" + error);
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_FINGERPRINT);
+        intent.putExtra("type", LockConstant.TYPE_ADD_FINGERPRINT);
+        intent.putExtra("FRNo", fingerPrintNo);
+        intent.putExtra("status", status);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        intent.putExtra("maxVail", maxVail);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onFingerPrintCollection(ExtendedBluetoothDevice var1, int var2, Error var3) {
-        Timber.e("-----------onFingerPrintCollection");
+    public void onFingerPrintCollection(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, Error error) {
     }
 
     @Override
-    public void onFingerPrintCollection(ExtendedBluetoothDevice var1, int var2, int var3,
-                                        int var4, Error var5) {
-        Timber.e("-----------onFingerPrintCollection");
+    public void onFingerPrintCollection(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, int vail,
+                                        int maxVail, Error error) {
+        Timber.e("-----------onFingerPrintCollection" + vail + "--:" + maxVail);//1--:4
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_FINGERPRINT);
+        intent.putExtra("type", LockConstant.TYPE_COLLECTION_FINGERPRINT);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        intent.putExtra("vail", vail);
+        intent.putExtra("maxVail", maxVail);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onModifyFingerPrintPeriod(ExtendedBluetoothDevice var1, int var2, long var3,
-                                          long var5, long var7, Error var9) {
+    public void onModifyFingerPrintPeriod(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, long FRNo, long startDate, long endDate, Error error) {
         Timber.e("-----------onModifyFingerPrintPeriod");
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_FINGERPRINT);
+        intent.putExtra("type", LockConstant.TYPE_MODIFY_FINGERPRINT);
+        intent.putExtra("FRNo", FRNo);
+        intent.putExtra("startDate", startDate);
+        intent.putExtra("endDate", endDate);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onDeleteFingerPrint(ExtendedBluetoothDevice var1, int var2, long var3, Error
-            var5) {
+    public void onDeleteFingerPrint(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, long FRNo, Error error) {
         Timber.e("-----------onDeleteFingerPrint");
     }
 
     @Override
-    public void onClearFingerPrint(ExtendedBluetoothDevice var1, int var2, Error var3) {
+    public void onClearFingerPrint(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, Error error) {
         Timber.e("-----------onClearFingerPrint");
+        Intent intent = new Intent(LockConstant.ACTION_LOCK_FINGERPRINT);
+        intent.putExtra("type", LockConstant.TYPE_CLEAR_FINGERPRINT);
+        intent.putExtra(LockConstant.ERROR_MSG, error);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onSearchAutoLockTime(ExtendedBluetoothDevice var1, int var2, int var3, int var4,
+    public void onSearchAutoLockTime(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, int var3, int var4,
                                      int var5, Error var6) {
         Timber.e("-----------onSearchAutoLockTime");
     }
 
     @Override
-    public void onModifyAutoLockTime(ExtendedBluetoothDevice var1, int var2, int var3, Error
+    public void onModifyAutoLockTime(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, int var3, Error
             var4) {
         Timber.e("-----------onModifyAutoLockTime");
     }
 
     @Override
-    public void onReadDeviceInfo(ExtendedBluetoothDevice var1, String var2, String var3, String
+    public void onReadDeviceInfo(ExtendedBluetoothDevice extendedBluetoothDevice, String var2, String var3, String
             var4, String var5, String var6) {
         Timber.e("-----------onReadDeviceInfo");
     }
 
     @Override
-    public void onEnterDFUMode(ExtendedBluetoothDevice var1, Error var2) {
+    public void onEnterDFUMode(ExtendedBluetoothDevice extendedBluetoothDevice, Error var2) {
         Timber.e("-----------onEnterDFUMode");
     }
 
     @Override
-    public void onGetLockSwitchState(ExtendedBluetoothDevice var1, int var2, int var3, Error
+    public void onGetLockSwitchState(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, int var3, Error
             var4) {
         Timber.e("-----------onGetLockSwitchState");
     }
@@ -433,46 +543,43 @@ public class MyLockCallback implements LockCallback {
     @Override
     public void onLock(ExtendedBluetoothDevice extendedBluetoothDevice, int battery, int uid, int uniqueid, long lockTime, Error error) {
         Timber.e("-----------onLock");
-        if (error == Error.SUCCESS) {
-            ToastUtil.showToast(mContext, "解锁成功");
-        }
     }
 
     @Override
-    public void onScreenPasscodeOperate(ExtendedBluetoothDevice var1, int var2, int var3, Error
+    public void onScreenPasscodeOperate(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, int var3, Error
             var4) {
         Timber.e("-----------onScreenPasscodeOperate");
     }
 
     @Override
-    public void onRecoveryData(ExtendedBluetoothDevice var1, int var2, Error var3) {
+    public void onRecoveryData(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, Error var3) {
         Timber.e("-----------onRecoveryData");
     }
 
     @Override
-    public void onSearchICCard(ExtendedBluetoothDevice var1, int var2, String var3, Error var4) {
+    public void onSearchICCard(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, String var3, Error var4) {
         Timber.e("-----------onSearchICCard");
     }
 
     @Override
-    public void onSearchFingerPrint(ExtendedBluetoothDevice var1, int var2, String var3, Error
+    public void onSearchFingerPrint(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, String var3, Error
             var4) {
         Timber.e("-----------onSearchFingerPrint");
     }
 
     @Override
-    public void onSearchPasscode(ExtendedBluetoothDevice var1, String var2, Error var3) {
+    public void onSearchPasscode(ExtendedBluetoothDevice extendedBluetoothDevice, String var2, Error var3) {
         Timber.e("-----------onSearchPasscode");
     }
 
     @Override
-    public void onSearchPasscodeParam(ExtendedBluetoothDevice var1, int var2, String var3,
+    public void onSearchPasscodeParam(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, String var3,
                                       long var4, Error var6) {
         Timber.e("-----------onSearchPasscodeParam");
     }
 
     @Override
-    public void onOperateRemoteUnlockSwitch(ExtendedBluetoothDevice var1, int var2, int var3,
+    public void onOperateRemoteUnlockSwitch(ExtendedBluetoothDevice extendedBluetoothDevice, int var2, int var3,
                                             int var4, int var5, Error var6) {
         Timber.e("-----------onOperateRemoteUnlockSwitch");
     }
@@ -516,14 +623,14 @@ public class MyLockCallback implements LockCallback {
                 public void onSuccess(Boolean aBoolean) {
                     Timber.e("--------添加成功:");
                     Intent intent = new Intent(LockConstant.ACTION_ADD_ADMIN);
-                    intent.putExtra(LockConstant.ERROR_MSG, error.getErrorMsg());
+                    intent.putExtra(LockConstant.ERROR_MSG, error);
                     mLocalBroadcastManager.sendBroadcast(intent);
                 }
             });
 
         } else {
             Intent intent = new Intent(LockConstant.ACTION_ADD_ADMIN);
-            intent.putExtra(LockConstant.ERROR_MSG, error.getErrorMsg());
+            intent.putExtra(LockConstant.ERROR_MSG, error);
             mLocalBroadcastManager.sendBroadcast(intent);
         }
     }

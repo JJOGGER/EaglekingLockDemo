@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:id="@+id/immersive"
+    android:orientation="vertical"
+    tools:context="cn.jcyh.eaglekinglockdemo.ui.activity.AddFingerprint2Activity">
+
+    <include layout="@layout/include_title_layout"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingLeft="42dp"
+        android:paddingRight="42dp"
+        android:paddingTop="25dp"
+        android:text="添加过程中，请根据提示，在指纹采集器上进行多次的抬起，按压"
+        android:textColor="@color/black_333333"
+        android:textSize="16sp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="25dp"
+        android:src="@mipmap/ic_fr_guide"/>
+
+    <TextView
+        android:id="@+id/tv_add"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:text="开始添加"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+
+</LinearLayout>

@@ -33,7 +33,7 @@ public class SharePreUtil {
     /**
      * 保存在手机里的文件名
      */
-    private static final String FILE_NAME = "jcyh_data";
+    private static final String FILE_NAME = "lock_data";
 
     public void setString(String key, String value) {
         SharedPreferences.Editor editor = sPreferencesUser.edit();

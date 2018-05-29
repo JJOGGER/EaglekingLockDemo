@@ -488,6 +488,9 @@ public class DigitUtil {
         return (feature & Feature.AUTO_LOCK) != 0;
     }
 
+    /**
+     * 判断是否可以修改密码
+     */
     public static boolean isSupportModifyPasscode(int feature) {
         return (feature & Feature.MODIFY_PASSCODE_FUNCTION) != 0;
     }
@@ -500,6 +503,9 @@ public class DigitUtil {
         return (feature & Feature.PASSWORD_DISPLAY_OR_HIDE) != 0;
     }
 
+    /**
+     * 判断是否支持循环密码
+     */
     public static boolean isSupportCyclicPasscode(int feature) {
         return (feature & Feature.CYCLIC_PASSWORD) != 0;
     }

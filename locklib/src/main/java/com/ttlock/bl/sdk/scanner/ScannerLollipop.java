@@ -14,7 +14,6 @@ import android.bluetooth.le.ScanSettings;
 import android.bluetooth.le.ScanSettings.Builder;
 import android.os.ParcelUuid;
 import android.support.annotation.RequiresPermission;
-import android.util.Log;
 
 import com.ttlock.bl.sdk.service.BluetoothLeService;
 import com.ttlock.bl.sdk.util.LogUtil;
@@ -43,11 +42,9 @@ public class ScannerLollipop extends ScannerCompat {
             ScanSettings settings = (new Builder()).setScanMode(2).build();
             ArrayList filters = new ArrayList();
             filters.add((new android.bluetooth.le.ScanFilter.Builder()).setServiceUuid(ParcelUuid.fromString(UUID_SERVICE)).build());
-            Log.e("TAG", "------------startScanInternal:" +BluetoothLeService.scanBongOnly);
             if (BluetoothLeService.scanBongOnly) {
                 filters = null;
             }
-
             this.scanner.startScan(filters, settings, this.scanCallback);
         }
 

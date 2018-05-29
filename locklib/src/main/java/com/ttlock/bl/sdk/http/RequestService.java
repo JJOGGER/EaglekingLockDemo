@@ -12,8 +12,18 @@ import retrofit2.http.POST;
  */
 
 public interface RequestService {
-    String ANYCHAT_URL = "http://ihomecn.rollupcn.com";
-    String BASE_URL = "https://api.ttlock.com.cn";
+    //    String BASE_URL = "https://api.ttlock.com.cn";api.sciener.cn
+    String BASE_URL = "http://lock.9cyh.cn";
+//    String BASE_URL = "https://api.sciener.cn";
+
+
+    @FormUrlEncoded
+    @POST("/v3/user/register")
+    Observable<Response<ResponseBody>> regist(@Field("clientId") String clientId,
+                                              @Field("clientSecret") String clientSecret,
+                                              @Field("username") String username,
+                                              @Field("password") String password,
+                                              @Field("date") long date);
 
     @FormUrlEncoded
     @POST("/oauth2/token")
@@ -109,4 +119,180 @@ public interface RequestService {
                                                    @Field("pageNo") int pageNo,
                                                    @Field("pageSize") int pageSize,
                                                    @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/key/delete")
+    Observable<Response<ResponseBody>> delKey(@Field("clientId") String clientId,
+                                              @Field("accessToken") String accessToken,
+                                              @Field("keyId") int keyId,
+                                              @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lock/resetKey")
+    Observable<Response<ResponseBody>> resetKey(@Field("clientId") String clientId,
+                                                @Field("accessToken") String accessToken,
+                                                @Field("lockId") int keyId,
+                                                @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lock/deleteAllKey")
+    Observable<Response<ResponseBody>> delAllKeys(@Field("clientId") String clientId,
+                                                  @Field("accessToken") String accessToken,
+                                                  @Field("lockId") int lockId,
+                                                  @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lock/listKeyboardPwd")
+    Observable<Response<ResponseBody>> getPwdsByLock(@Field("clientId") String clientId,
+                                                     @Field("accessToken") String accessToken,
+                                                     @Field("lockId") int lockId,
+                                                     @Field("pageNo") int pageNo,
+                                                     @Field("pageSize") int pageSize,
+                                                     @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lock/resetKeyboardPwd")
+    Observable<Response<ResponseBody>> resetKeyboardPwd(@Field("clientId") String clientId,
+                                                        @Field("accessToken") String accessToken,
+                                                        @Field("lockId") int lockId,
+                                                        @Field("pwdInfo") String pwdInfo,
+                                                        @Field("timestamp") long timestamp,
+                                                        @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/key/freeze")
+    Observable<Response<ResponseBody>> freezeKey(@Field("clientId") String clientId,
+                                                 @Field("accessToken") String accessToken,
+                                                 @Field("keyId") int keyId,
+                                                 @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/key/unfreeze")
+    Observable<Response<ResponseBody>> unFreezeKey(@Field("clientId") String clientId,
+                                                   @Field("accessToken") String accessToken,
+                                                   @Field("keyId") int keyId,
+                                                   @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/key/authorize")
+    Observable<Response<ResponseBody>> authKeyUser(@Field("clientId") String clientId,
+                                                   @Field("accessToken") String accessToken,
+                                                   @Field("lockId") int lockId,
+                                                   @Field("keyId") int keyId,
+                                                   @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/key/unauthorize")
+    Observable<Response<ResponseBody>> unAuthKeyUser(@Field("clientId") String clientId,
+                                                     @Field("accessToken") String accessToken,
+                                                     @Field("lockId") int lockId,
+                                                     @Field("keyId") int keyId,
+                                                     @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lock/rename")
+    Observable<Response<ResponseBody>> lockRename(@Field("clientId") String clientId,
+                                                  @Field("accessToken") String accessToken,
+                                                  @Field("lockId") int lockId,
+                                                  @Field("lockAlias") String lockAlias,
+                                                  @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lock/changeAdminKeyboardPwd")
+    Observable<Response<ResponseBody>> changeAdminKeyboardPwd(@Field("clientId") String clientId,
+                                                              @Field("accessToken") String accessToken,
+                                                              @Field("lockId") int lockId,
+                                                              @Field("password") String password,
+                                                              @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/identityCard/list")
+    Observable<Response<ResponseBody>> getICs(@Field("clientId") String clientId,
+                                              @Field("accessToken") String accessToken,
+                                              @Field("lockId") int lockId,
+                                              @Field("pageNo") int pageNo,
+                                              @Field("pageSize") int pageSize,
+                                              @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/identityCard/delete")
+    Observable<Response<ResponseBody>> deleteIC(@Field("clientId") String clientId,
+                                                @Field("accessToken") String accessToken,
+                                                @Field("lockId") int lockId,
+                                                @Field("cardId") int cardId,
+                                                @Field("deleteType") int deleteType,
+                                                @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/identityCard/add")
+    Observable<Response<ResponseBody>> addIC(@Field("clientId") String clientId,
+                                             @Field("accessToken") String accessToken,
+                                             @Field("lockId") int lockId,
+                                             @Field("cardNumber") String cardNumber,
+                                             @Field("startDate") long startDate,
+                                             @Field("endDate") long endDate,
+                                             @Field("addType") int addType,
+                                             @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/identityCard/clear ")
+    Observable<Response<ResponseBody>> clearICs(@Field("clientId") String clientId,
+                                                @Field("accessToken") String accessToken,
+                                                @Field("lockId") int lockId,
+                                                @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/fingerprint/list")
+    Observable<Response<ResponseBody>> getFingerprints(@Field("clientId") String clientId,
+                                                       @Field("accessToken") String accessToken,
+                                                       @Field("lockId") int lockId,
+                                                       @Field("pageNo") int pageNo,
+                                                       @Field("pageSize") int pageSize,
+                                                       @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/fingerprint/delete")
+    Observable<Response<ResponseBody>> deleteFingerprint(@Field("clientId") String clientId,
+                                                         @Field("accessToken") String accessToken,
+                                                         @Field("lockId") int lockId,
+                                                         @Field("fingerprintId") int fingerprintId,
+                                                         @Field("deleteType") int deleteType,
+                                                         @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/fingerprint/add")
+    Observable<Response<ResponseBody>> addFingerprint(@Field("clientId") String clientId,
+                                                      @Field("accessToken") String accessToken,
+                                                      @Field("lockId") int lockId,
+                                                      @Field("fingerprintNumber") String fingerprintNumber,
+                                                      @Field("startDate") long startDate,
+                                                      @Field("endDate") long endDate,
+                                                      @Field("addType") int addType,
+                                                      @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/fingerprint/clear")
+    Observable<Response<ResponseBody>> clearFingerprints(@Field("clientId") String clientId,
+                                                         @Field("accessToken") String accessToken,
+                                                         @Field("lockId") int lockId,
+                                                         @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lockRecord/upload")
+    Observable<Response<ResponseBody>> uploadLockRecords(@Field("clientId") String clientId,
+                                                         @Field("accessToken") String accessToken,
+                                                         @Field("lockId") int lockId,
+                                                         @Field("records") String records,
+                                                         @Field("date") long date);
+
+    @FormUrlEncoded
+    @POST("/v3/lockRecord/list")
+    Observable<Response<ResponseBody>> getLockRecords(@Field("clientId") String clientId,
+                                                      @Field("accessToken") String accessToken,
+                                                      @Field("lockId") int lockId,
+                                                      @Field("startDate") long startDate,
+                                                      @Field("endDate") long endDate,
+                                                      @Field("pageNo") int pageNo,
+                                                      @Field("pageSize") int pageSize,
+                                                      @Field("date") long date);
 }

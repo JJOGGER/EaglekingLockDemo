@@ -74,6 +74,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         mProgressDialog.show();
     }
 
+    public ProgressDialog getDialog() {
+        return mProgressDialog != null ? mProgressDialog : null;
+    }
+
     public void cancelProgressDialog() {
         if (mProgressDialog != null)
             mProgressDialog.cancel();

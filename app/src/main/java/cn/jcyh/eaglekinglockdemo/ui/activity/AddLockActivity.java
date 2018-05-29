@@ -14,7 +14,8 @@ import android.view.View;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.api.LockAPI;
+import com.ttlock.bl.sdk.constant.Operation;
+import com.ttlock.bl.sdk.entity.Error;
 import com.ttlock.bl.sdk.scanner.ExtendedBluetoothDevice;
 
 import java.util.ArrayList;
@@ -26,8 +27,7 @@ import cn.jcyh.eaglekinglockdemo.MainActivity;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
-import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
-import cn.jcyh.eaglekinglockdemo.enumtype.Operation;
+import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
 import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
 
 public class AddLockActivity extends BaseActivity implements BaseQuickAdapter.OnItemClickListener {
@@ -53,6 +53,7 @@ public class AddLockActivity extends BaseActivity implements BaseQuickAdapter.On
         intentFilter.addAction(LockConstant.ACTION_BLE_DISCONNECTED);
         intentFilter.addAction(LockConstant.ACTION_ADD_ADMIN);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, intentFilter);
+        MyLockAPI.getLockAPI().startBTDeviceScan();
     }
 
     @OnClick(R.id.ibtn_back)
@@ -62,9 +63,7 @@ public class AddLockActivity extends BaseActivity implements BaseQuickAdapter.On
 
     @Override
     public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-        ControlCenter.sBleSession.setOperation(Operation.ADD_ADMIN);
-
-        LockAPI.getLockAPI(getApplicationContext()).connect((ExtendedBluetoothDevice) adapter.getItem(position));
+        MyLockAPI.getLockAPI().connect((ExtendedBluetoothDevice) adapter.getItem(position),Operation.ADD_ADMIN);
         showProgressDialog();
 
     }
@@ -78,10 +77,16 @@ public class AddLockActivity extends BaseActivity implements BaseQuickAdapter.On
                 ExtendedBluetoothDevice device = bundle.getParcelable(LockConstant.DEVICE);
                 mAdapter.updateDevice(device);
             } else if (LockConstant.ACTION_ADD_ADMIN.equals(action)) {
-                startNewActivity(MainActivity.class);
-                ToastUtil.showToast(getApplicationContext(), "添加成功");
-                cancelProgressDialog();
-                finish();
+                Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
+                ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                if (Error.SUCCESS.equals(error)) {
+                    startNewActivity(MainActivity.class);
+                    ToastUtil.showToast(getApplicationContext(), "添加成功");
+                    cancelProgressDialog();
+                    finish();
+                }else {
+                    ToastUtil.showToast(getApplicationContext(),error.getDescription());
+                }
             }
 //            else if(action.equals(BleConstant.ACTION_BLE_DISCONNECTED)) {
 //                cancelProgressDialog();

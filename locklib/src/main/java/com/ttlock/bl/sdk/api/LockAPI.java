@@ -26,6 +26,7 @@ import com.ttlock.bl.sdk.scanner.ExtendedBluetoothDevice;
 import com.ttlock.bl.sdk.service.BluetoothLeService;
 import com.ttlock.bl.sdk.util.DigitUtil;
 import com.ttlock.bl.sdk.util.LogUtil;
+import com.ttlock.bl.sdk.util.SharePreUtil;
 
 import java.util.List;
 
@@ -35,25 +36,15 @@ public class LockAPI {
     private BluetoothLeService mBluetoothLeService;
     public static boolean scan;
     public static LockCallback sLockCallback;
-    private static LockAPI sLockAPI;
-    private static Context sContext;
+    protected static Context sContext;
 
-    public static LockAPI getLockAPI(Context context) {
+    public LockAPI() {
+    }
+    public static void init(Context context, LockCallback lockCallback, String CLIENT_ID, String CLIENT_SECRET) {
         sContext = context.getApplicationContext();
-        if (sLockAPI == null)
-            synchronized (LockAPI.class) {
-                if (sLockAPI == null) {
-                    sLockAPI = new LockAPI();
-                }
-            }
-        return sLockAPI;
-    }
-
-    private LockAPI() {
-    }
-
-    public static void initCallback(LockCallback lockCallback) {
         sLockCallback = lockCallback;
+        SharePreUtil.getInstance(sContext).setString(Constant.CLIENT_ID, CLIENT_ID);
+        SharePreUtil.getInstance(sContext).setString(Constant.CLIENT_SECRET, CLIENT_SECRET);
     }
 
 
@@ -167,8 +158,7 @@ public class LockAPI {
     }
 
     @RequiresPermission("android.permission.BLUETOOTH")
-    public synchronized void connect(String address) {
-        LogUtil.d("connect ...", DBG);
+    protected synchronized void connect(String address) {
         this.mBluetoothLeService = BluetoothLeService.getBluetoothLeService();
         LogUtil.d("mBluetoothLeService = " + this.mBluetoothLeService, DBG);
         if (this.mBluetoothLeService == null) {
@@ -178,7 +168,6 @@ public class LockAPI {
             this.mBluetoothLeService.setConnectCnt(0);
             this.mBluetoothLeService.connect(address);
         }
-
     }
 
     public void disconnect() {
@@ -288,9 +277,8 @@ public class LockAPI {
     }
 
     public void unlockByAdministrator(ExtendedBluetoothDevice extendedBluetoothDevice, int uid, String lockVersion, String adminPs, String unlockKey, int lockFlagPos, long unlockDate, String aesKeyStr, long timezoneOffset) {
-        LogUtil.d("this:" + this.toString(), DBG);
         byte[] aesKeyArray = null;
-        if (aesKeyStr != null && !"".equals(aesKeyStr)) {
+        if (!TextUtils.isEmpty(aesKeyStr)) {
             aesKeyArray = DigitUtil.convertAesKeyStrToBytes(aesKeyStr);
         }
 
@@ -407,7 +395,6 @@ public class LockAPI {
         if (aesKeyStr != null && !"".equals(aesKeyStr)) {
             aesKeyArray = DigitUtil.convertAesKeyStrToBytes(aesKeyStr);
         }
-
         TransferData transferData = new TransferData();
         transferData.setAPICommand(6);
         transferData.setmUid(uid);
@@ -953,7 +940,6 @@ public class LockAPI {
         if (aesKeyStr != null && !"".equals(aesKeyStr)) {
             aesKeyArray = DigitUtil.convertAesKeyStrToBytes(aesKeyStr);
         }
-
         TransferData transferData = new TransferData();
         transferData.setAPICommand(45);
         transferData.setmUid(uid);

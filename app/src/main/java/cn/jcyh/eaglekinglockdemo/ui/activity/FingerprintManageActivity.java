@@ -13,13 +13,6 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.bean.LockFingerprint;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.http.HttpResult;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,22 +24,29 @@ import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.HttpResult;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.locklib.entity.FR;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 public class FingerprintManageActivity extends BaseActivity implements BaseQuickAdapter.OnItemClickListener {
     @BindView(R.id.tv_title)
     TextView tvTitle;
     @BindView(R.id.rv_content)
     RecyclerView rvContent;
-    private BaseQuickAdapter<LockFingerprint, BaseViewHolder> mAdapter;
-    private List<LockFingerprint> mLockFingerprints;
+    private BaseQuickAdapter<FR, BaseViewHolder> mAdapter;
+    private List<FR> mLockFingerprints;
     private final int UPDATE_REQUEST = 0X0A;
     private LockKey mLockKey;
     private MyReceiver mReceiver;
     private MyLockAPI mLockAPI;
-    private LockFingerprint mLockFingerprint;
+    private FR mLockFingerprint;
 
     @Override
     public int getLayoutId() {
@@ -56,12 +56,12 @@ public class FingerprintManageActivity extends BaseActivity implements BaseQuick
     @Override
     protected void init() {
         tvTitle.setText("指纹");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         mLockFingerprints = new ArrayList<>();
         mLockAPI = MyLockAPI.getLockAPI();
-        mAdapter = new BaseQuickAdapter<LockFingerprint, BaseViewHolder>(R.layout.rv_fingerprint_item, mLockFingerprints) {
+        mAdapter = new BaseQuickAdapter<FR, BaseViewHolder>(R.layout.rv_fingerprint_item, mLockFingerprints) {
             @Override
-            protected void convert(BaseViewHolder helper, LockFingerprint item) {
+            protected void convert(BaseViewHolder helper, FR item) {
                 helper.setText(R.id.tv_name, item.getFingerprintId() + "");
                 helper.setText(R.id.tv_fingerprint_no, item.getFingerprintNumber());
                 helper.setText(R.id.tv_date, SimpleDateFormat.getInstance().format(new Date(item.getStartDate())) + "-" +
@@ -76,14 +76,15 @@ public class FingerprintManageActivity extends BaseActivity implements BaseQuick
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, intentFilter);
     }
     public void initData(){
-        LockHttpAction.getHttpAction(this).getFingerprints(mLockKey.getLockId(), 1, 20, new OnHttpRequestCallback<HttpResult<LockFingerprint>>() {
+        LockHttpAction.getHttpAction(this).getFingerprints(mLockKey.getLockId(), 1, 20, new OnHttpRequestCallback<HttpResult<FR>>() {
+
             @Override
-            public void onFailure(int errorCode) {
-                Timber.e("----loadData--errorCode:" + errorCode);
+            public void onFailure(int errorCode, String desc) {
+                L.e("----loadData--errorCode:" + errorCode);
             }
 
             @Override
-            public void onSuccess(HttpResult<LockFingerprint> fingerprintHttpResult) {
+            public void onSuccess(HttpResult<FR> fingerprintHttpResult) {
                 if (fingerprintHttpResult.getList() != null)
                     mAdapter.setNewData(fingerprintHttpResult.getList());
             }
@@ -106,7 +107,7 @@ public class FingerprintManageActivity extends BaseActivity implements BaseQuick
                 break;
             case R.id.tv_add:
                 Intent intent = new Intent(this, AddFingerprintActivity.class);
-                intent.putExtra("key", mLockKey);
+                intent.putExtra(LockConstant.LOCK_KEY, mLockKey);
                 startActivityForResult(intent, UPDATE_REQUEST);
                 break;
         }
@@ -145,7 +146,7 @@ public class FingerprintManageActivity extends BaseActivity implements BaseQuick
             String action = intent.getAction();
             if (TextUtils.isEmpty(action)) return;
             if (!LockConstant.ACTION_LOCK_FINGERPRINT.equals(action)) return;
-            String type = intent.getStringExtra("type");
+            String type = intent.getStringExtra(LockConstant.TYPE);
             Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
             switch (type) {
 //                case LockConstant.TYPE_DELETE_FINGERPRINT:
@@ -166,16 +167,17 @@ public class FingerprintManageActivity extends BaseActivity implements BaseQuick
 
     private void deleteFromServer(long FRNo) {
         LockHttpAction.getHttpAction(this).deleteFingerprint(mLockKey.getLockId(), mLockFingerprint.getFingerprintId(), new OnHttpRequestCallback<Boolean>() {
+
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
                 cancelProgressDialog();
-                ToastUtil.showToast(getApplicationContext(), "删除失败" + errorCode);
+                T.show( "删除失败" + errorCode);
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
                 cancelProgressDialog();
-                ToastUtil.showToast(getApplicationContext(), "删除成功");
+                T.show( "删除成功");
                 loadData();
             }
         });
@@ -184,13 +186,13 @@ public class FingerprintManageActivity extends BaseActivity implements BaseQuick
     private void clearFromServer() {
         LockHttpAction.getHttpAction(this).clearFingerprints(mLockKey.getLockId(), new OnHttpRequestCallback<Boolean>() {
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
                 cancelProgressDialog();
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
-                ToastUtil.showToast(getApplicationContext(), "清空成功");
+                T.show("清空成功");
                 cancelProgressDialog();
                 initData();
             }

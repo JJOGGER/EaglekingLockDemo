@@ -16,11 +16,6 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,9 +25,14 @@ import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 public class AddICActivity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -62,7 +62,7 @@ public class AddICActivity extends BaseActivity {
     protected void init() {
         tvTitle.setText("添加IC卡");
         mReceiver = new MyReceiver();
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         mLockAPI = MyLockAPI.getLockAPI();
         IntentFilter intentFilter = new IntentFilter(LockConstant.ACTION_LOCK_IC_CARD);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, intentFilter);
@@ -87,7 +87,7 @@ public class AddICActivity extends BaseActivity {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String startTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + startTime);
+                L.e("---------->format" + startTime);
                 mStartTime = date.getTime();
                 mLockKey.setStartDate(mStartTime);
                 tvStartTime.setText(startTime);
@@ -98,7 +98,7 @@ public class AddICActivity extends BaseActivity {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String startTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + startTime);
+                L.e("---------->format" + startTime);
                 mEndTime = date.getTime();
                 mLockKey.setEndDate(mEndTime);
                 tvEndTime.setText(startTime);
@@ -148,17 +148,16 @@ public class AddICActivity extends BaseActivity {
             String action = intent.getAction();
             if (TextUtils.isEmpty(action)) return;
             if (!LockConstant.ACTION_LOCK_IC_CARD.equals(action)) return;
-            String type = intent.getStringExtra("type");
+            String type = intent.getStringExtra(LockConstant.TYPE);
             Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
             switch (type) {
                 case LockConstant.TYPE_ADD_IC_CARD:
                     if (Error.SUCCESS == error) {
-                        int status = intent.getIntExtra("status", -1);
+                        int status = intent.getIntExtra(LockConstant.STATUS, -1);
                         if (status == 1 && getDialog() != null) {
                             getDialog().setMessage("进入添加模式，请把IC卡放置在扫描区");
                         } else if (status == 2) {
-                            long cardNo = intent.getLongExtra("cardNo", 0);
-                            Timber.e("------------>" + scIsForever.isChecked());
+                            long cardNo = intent.getLongExtra(LockConstant.IC_CARD_NUMBER, 0);
                             if (scIsForever.isChecked()) {
                                 mStartTime = 0;
                                 mEndTime = 0;
@@ -172,24 +171,24 @@ public class AddICActivity extends BaseActivity {
                                     mLockAPI.modifyICPeriod(null, cardNo, mLockKey);
                                 } else {
                                     Bundle bundle = new Bundle();
-                                    bundle.putLong("cardNo", cardNo);
+                                    bundle.putLong(LockConstant.IC_CARD_NUMBER, cardNo);
                                     MyLockAPI.sBleSession.setArgments(bundle);
                                     mLockAPI.connect(mLockKey.getLockMac(), Operation.MODIFY_IC_PERIOD);
                                 }
                             }
                         } else {
-                            ToastUtil.showToast(getApplicationContext(), error.getDescription() + status);
+                            T.show(error.getDescription() + status);
                             cancelProgressDialog();
                         }
                     } else {
-                        ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                        T.show(error.getDescription());
                         cancelProgressDialog();
                     }
                     break;
                 case LockConstant.TYPE_MODIFY_IC_CARD:
-                    mStartTime = intent.getLongExtra("startDate", 0);
-                    mEndTime = intent.getLongExtra("endDate", 0);
-                    addIC2Server(intent.getLongExtra("cardNo", 0));
+                    mStartTime = intent.getLongExtra(LockConstant.START_DATE, 0);
+                    mEndTime = intent.getLongExtra(LockConstant.END_DATE, 0);
+                    addIC2Server(intent.getLongExtra(LockConstant.IC_CARD_NUMBER, 0));
                     break;
                 case LockConstant.TYPE_DELETE_IC_CARD:
                     break;
@@ -202,21 +201,21 @@ public class AddICActivity extends BaseActivity {
 
     private void addIC2Server(long cardNo) {
         if (mEndTime - mStartTime < 0) {
-            ToastUtil.showToast(getApplicationContext(), "时间选择有误");
+            T.show("时间选择有误");
             return;
         }
-        Timber.e("-------start:" + mStartTime + "-->" + mEndTime);
         LockHttpAction.getHttpAction(getApplicationContext()).addIC(mLockKey.getLockId(), cardNo + "", mStartTime, mEndTime, new OnHttpRequestCallback<Boolean>() {
+
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
                 cancelProgressDialog();
-                ToastUtil.showToast(getApplicationContext(), "添加失败" + errorCode);
+                T.show("添加失败" + errorCode);
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
                 cancelProgressDialog();
-                ToastUtil.showToast(getApplicationContext(), "添加成功");
+                T.show("添加成功");
                 setResult(RESULT_OK);
                 finish();
             }

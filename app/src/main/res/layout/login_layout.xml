@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/ll_login_container"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/et_user_id"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:layout_marginTop="79dp"
+        android:background="@null"
+        android:gravity="bottom"
+        android:hint="@string/input_userid"
+        android:paddingBottom="9dp"
+        android:paddingLeft="17dp"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/gray_888888"
+        android:textSize="16sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/et_user_id"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:background="@color/colorAccent"/>
+
+
+    <EditText
+        android:id="@+id/et_token"
+        android:layout_width="match_parent"
+        android:layout_height="57dp"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:background="@null"
+        android:gravity="bottom"
+        android:hint="@string/input_token"
+        android:inputType="textPassword"
+        android:paddingBottom="9dp"
+        android:paddingLeft="17dp"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/gray_888888"
+        android:textSize="16sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/et_token"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:background="@color/colorAccent"/>
+
+    <TextView
+        android:id="@+id/tv_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:layout_marginTop="90dp"
+        android:background="@drawable/login_btn_p_shape"
+        android:gravity="center"
+        android:text="@string/login"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/tv_go_get_token"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:paddingBottom="32dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:paddingTop="32dp"
+        android:text="@string/get_token"
+        android:textColor="@color/colorAccent"/>
+</LinearLayout>

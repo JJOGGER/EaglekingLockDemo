@@ -8,10 +8,6 @@ import android.view.View;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.google.gson.Gson;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.bean.LockUser;
-import com.ttlock.bl.sdk.bean.Operate;
-import com.ttlock.bl.sdk.constant.Operation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,9 +16,14 @@ import java.util.List;
 import butterknife.BindView;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
+import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operate;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.entity.LockUser;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
+import cn.jcyh.utils.L;
 
 
 public class OperateActivity extends BaseActivity implements BaseQuickAdapter.OnItemClickListener {
@@ -46,8 +47,8 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
         String[] stringArray = getResources().getStringArray(R.array.operate);
         Collections.addAll(mOperas, stringArray);
         mLockAPI = MyLockAPI.getLockAPI();
-        mKey = getIntent().getParcelableExtra("key");
-        Timber.e("---------key:" + mKey);
+        mKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
+        L.e("---------key:" + mKey);
         mAdapter = new BaseQuickAdapter<String, BaseViewHolder>(android.R.layout.simple_list_item_1, mOperas) {
             @Override
             protected void convert(BaseViewHolder helper, String item) {
@@ -66,19 +67,19 @@ public class OperateActivity extends BaseActivity implements BaseQuickAdapter.On
     public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
         switch (position) {
             case Operate.CLICK_TO_UNLOCK://点击开门
-                Timber.e("--------->点击开门:" + mLockAPI.isConnected(mKey.getLockMac()));
+                L.e("--------->点击开门:" + mLockAPI.isConnected(mKey.getLockMac()));
                 if (mLockAPI.isConnected(mKey.getLockMac())) {//当前处于连接状态 直接发指令
-                    Timber.e("-----------mKey.isAdmin():" + mKey.isAdmin());
+                    L.e("-----------mKey.isAdmin():" + mKey.isAdmin());
                     if (mKey.isAdmin()) {
                         String version = new Gson().toJson(mKey.getLockVersion());
-                        Timber.e("-------version:" + version);
+                        L.e("-------version:" + version);
                         mLockAPI.unlockByAdministrator(null,mKey);
                     } else
                         mLockAPI.unlockByUser(null,  mKey);
                 } else {//未连接进行连接
                     mProgressDialog.show();
-                    Timber.e("-----connect:" + mKey.getLockMac());
-                    mLockAPI.connect(mKey.getLockMac(),Operation.LOCKCAR_DOWN);
+                    L.e("-----connect:" + mKey.getLockMac());
+                    mLockAPI.connect(mKey.getLockMac(), Operation.LOCKCAR_DOWN);
                 }
                 break;
             //后面两个操作是车位锁独有操作

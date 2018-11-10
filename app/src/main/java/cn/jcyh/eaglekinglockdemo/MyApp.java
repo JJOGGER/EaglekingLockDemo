@@ -4,10 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
-import cn.jcyh.eaglekinglockdemo.callback.MyLockCallback;
-import cn.jcyh.eaglekinglockdemo.config.LockConfig;
-import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.Utils;
 
 /**
  * Created by jogger on 2018/4/26.
@@ -20,9 +18,9 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
+            L.plant(new L.DebugTree());
         }
-        MyLockAPI.init(this, new MyLockCallback(this), LockConfig.CLIENT_ID, LockConfig.CLIENT_SECRET);
+        Utils.init(this);
     }
 
     @Override

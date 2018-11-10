@@ -14,21 +14,25 @@ import android.view.View;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.scanner.ExtendedBluetoothDevice;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import cn.jcyh.eaglekinglockdemo.MainActivity;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.eaglekinglockdemo.ui.dialog.ChooseFloorDialog;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.locklib.scanner.ExtendedBluetoothDevice;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 public class AddLockActivity extends BaseActivity implements BaseQuickAdapter.OnItemClickListener {
     @BindView(R.id.rv_content)
@@ -63,29 +67,28 @@ public class AddLockActivity extends BaseActivity implements BaseQuickAdapter.On
 
     @Override
     public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-        MyLockAPI.getLockAPI().connect((ExtendedBluetoothDevice) adapter.getItem(position),Operation.ADD_ADMIN);
+        MyLockAPI.getLockAPI().connect((ExtendedBluetoothDevice) adapter.getItem(position), Operation.ADD_ADMIN);
         showProgressDialog();
-
     }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (action.equals(LockConstant.ACTION_BLE_DEVICE)) {
+            if (LockConstant.ACTION_BLE_DEVICE.equals(action)) {
                 Bundle bundle = intent.getExtras();
+                assert bundle != null;
                 ExtendedBluetoothDevice device = bundle.getParcelable(LockConstant.DEVICE);
                 mAdapter.updateDevice(device);
             } else if (LockConstant.ACTION_ADD_ADMIN.equals(action)) {
                 Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
-                ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                T.show(error.getDescription());
                 if (Error.SUCCESS.equals(error)) {
-                    startNewActivity(MainActivity.class);
-                    ToastUtil.showToast(getApplicationContext(), "添加成功");
-                    cancelProgressDialog();
-                    finish();
-                }else {
-                    ToastUtil.showToast(getApplicationContext(),error.getDescription());
+//                    startNewActivity(MainActivity.class);
+                    LockKey key = (LockKey) intent.getSerializableExtra(LockConstant.LOCK_KEY);
+                    chooseFloorInfo(key);
+                } else {
+                    T.show(error.getDescription());
                 }
             }
 //            else if(action.equals(BleConstant.ACTION_BLE_DISCONNECTED)) {
@@ -94,6 +97,31 @@ public class AddLockActivity extends BaseActivity implements BaseQuickAdapter.On
 //            }
         }
     };
+
+    private void chooseFloorInfo(LockKey key) {
+        ChooseFloorDialog chooseFloorDialog=new ChooseFloorDialog();
+        Bundle bundle=new Bundle();
+        bundle.putParcelable(LockConstant.LOCK_KEY,key);
+        chooseFloorDialog.setArguments(bundle);
+        T.show("锁添加成功，正在上传服务端进行初始化操作");
+        LockHttpAction.getHttpAction(this).initLock(key, new OnHttpRequestCallback<Boolean>() {
+
+            @Override
+            public void onFailure(int errorCode, String desc) {
+                L.e("--------------onFailure:" + desc + ":" + errorCode);
+                //服务器添加失败
+                T.show("服务器添加失败，请重置锁后再次尝试");
+            }
+
+            @Override
+            public void onSuccess(Boolean aBoolean) {
+                L.e("--------添加成功:");
+                cancelProgressDialog();
+
+                finish();
+            }
+        });
+    }
 
     @Override
     protected void onDestroy() {

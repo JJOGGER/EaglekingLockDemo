@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.szjcyh.demo.widget.SlideDelete
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/my_slide_delete"
+    android:layout_width="match_parent"
+    android:layout_height="64dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_account"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawableLeft="@mipmap/peephole_userslist_icon_user"
+            android:drawablePadding="21dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:textColor="@color/gray_888888"
+            android:textSize="16sp"/>
+
+        <ImageView
+            android:id="@+id/iv_more"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right|center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:src="@mipmap/device_btn_list_set"/>
+
+        <TextView
+            android:id="@+id/tv_admin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:paddingRight="16dp"
+            android:text="@string/adminer"
+            android:textColor="@color/colorAccent"
+            android:textSize="12sp"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="88dp"
+        android:layout_height="64dp">
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="88dp"
+            android:layout_height="64dp"
+            android:background="@color/red_e13c3c"
+            android:gravity="center"
+            android:text="@string/delete_user"
+            android:textColor="@color/white"
+            android:textSize="16sp"/>
+    </FrameLayout>
+
+</com.szjcyh.demo.widget.SlideDelete>

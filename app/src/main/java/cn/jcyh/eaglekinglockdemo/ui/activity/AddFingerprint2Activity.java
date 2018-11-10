@@ -9,17 +9,16 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.utils.T;
 
 public class AddFingerprint2Activity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -39,9 +38,9 @@ public class AddFingerprint2Activity extends BaseActivity {
         tvTitle.setText("添加指纹");
         mReceiver = new MyReceiver();
         mLockAPI = MyLockAPI.getLockAPI();
-        mLockKey = getIntent().getParcelableExtra("key");
-        mStartTime = getIntent().getLongExtra("startDate", 0);
-        mEndTime = getIntent().getLongExtra("endDate", 0);
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
+        mStartTime = getIntent().getLongExtra(LockConstant.START_DATE, 0);
+        mEndTime = getIntent().getLongExtra(LockConstant.END_DATE, 0);
         IntentFilter intentFilter = new IntentFilter(LockConstant.ACTION_LOCK_FINGERPRINT);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, intentFilter);
     }
@@ -75,28 +74,28 @@ public class AddFingerprint2Activity extends BaseActivity {
             String action = intent.getAction();
             if (TextUtils.isEmpty(action)) return;
             if (!LockConstant.ACTION_LOCK_FINGERPRINT.equals(action)) return;
-            String type = intent.getStringExtra("type");
+            String type = intent.getStringExtra(LockConstant.TYPE);
             Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
             switch (type) {
                 case LockConstant.TYPE_ADD_FINGERPRINT:
                     if (Error.SUCCESS == error) {
-                        int status = intent.getIntExtra("status", -1);
+                        int status = intent.getIntExtra(LockConstant.STATUS, -1);
                         if (status == 1) {
                             //进入验证
                             cancelProgressDialog();
                             Intent i = new Intent(AddFingerprint2Activity.this, AddFingerprint3Activity.class);
-                            i.putExtra("key", mLockKey);
-                            i.putExtra("maxVail", intent.getIntExtra("maxVail", 0));
-                            i.putExtra("startDate", mStartTime);
-                            i.putExtra("endDate", mEndTime);
-                            i.putExtra("key", mLockKey);
+                            i.putExtra(LockConstant.LOCK_KEY, mLockKey);
+                            i.putExtra(LockConstant.MAX_VALIDATE, intent.getIntExtra(LockConstant.MAX_VALIDATE, 0));
+                            i.putExtra(LockConstant.START_DATE, mStartTime);
+                            i.putExtra(LockConstant.END_DATE, mEndTime);
+                            i.putExtra(LockConstant.LOCK_KEY, mLockKey);
                             startActivity(i);
                         } else {
-                            ToastUtil.showToast(getApplicationContext(), error.getDescription() + status);
+                            T.show(error.getDescription() + status);
                             cancelProgressDialog();
                         }
                     } else {
-                        ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                        T.show( error.getDescription());
                         cancelProgressDialog();
                     }
                     break;

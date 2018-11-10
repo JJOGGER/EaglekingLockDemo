@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/srl_refresh"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_have_device"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/rl_connect_video"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@color/white">
+
+            <TextView
+                android:id="@+id/tv_device_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:maxLength="18"
+                android:maxLines="1"
+                android:paddingLeft="16dp"
+                android:text="@string/current_device_"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/tv_isOnline"
+                android:layout_width="35dp"
+                android:layout_height="15dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="11dp"
+                android:layout_toRightOf="@id/tv_device_name"
+                android:background="@drawable/doorbell_online_bg_selector"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textColor="@color/white"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/tv_conncet_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:paddingRight="16dp"
+                android:text="@string/into_device"
+                android:textColor="@color/gray_888888"
+                android:textSize="14sp"/>
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray_dcdcdc"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="18dp"
+            android:background="@color/gray_dcdcdc"/>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_params"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@color/white">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:drawableLeft="@mipmap/peephole_icon_parameter_setup"
+                android:drawablePadding="20dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:text="@string/param_set"
+                android:textColor="@color/black_333333"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:src="@mipmap/peephole_icon_enter"/>
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray_dcdcdc"/>
+
+        <RelativeLayout
+            android:id="@+id/rl_push_infos"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@color/white">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:drawableLeft="@mipmap/peephole_icon_push_info"
+                android:drawablePadding="20dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:text="@string/push_info"
+                android:textColor="@color/black_333333"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:src="@mipmap/peephole_icon_enter"/>
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray_dcdcdc"/>
+        <!--<RelativeLayout-->
+        <!--android:id="@+id/rl_media"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="54dp"-->
+        <!--android:background="@color/white">-->
+
+        <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:drawableLeft="@mipmap/peephole_icon_media"-->
+        <!--android:drawablePadding="20dp"-->
+        <!--android:gravity="center_vertical"-->
+        <!--android:paddingLeft="16dp"-->
+        <!--android:text="@string/media"-->
+        <!--android:textColor="@color/black_333333"-->
+        <!--android:textSize="16sp"/>-->
+
+        <!--<ImageView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_marginRight="16dp"-->
+        <!--android:src="@mipmap/peephole_icon_enter"/>-->
+        <!--</RelativeLayout>-->
+
+        <!--<View-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0.5dp"-->
+        <!--android:background="@color/gray_dcdcdc"/>-->
+
+        <!--<RelativeLayout
+            android:id="@+id/rl_property"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@color/white">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:drawableLeft="@mipmap/peephole_icon_property"
+                android:drawablePadding="20dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:text="@string/property_service"
+                android:textColor="@color/black_333333"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:id="@+id/iv_property_enter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:src="@mipmap/peephole_icon_enter"/>
+
+            <TextView
+                android:id="@+id/tv_property_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/iv_property_enter"
+                android:paddingRight="17dp"
+                android:text="@string/close"
+                android:textColor="@color/property_state_color"
+                android:textSize="14sp"/>
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray_dcdcdc"/>-->
+    </LinearLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

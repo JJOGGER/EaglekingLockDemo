@@ -5,19 +5,17 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.bean.LockUser;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.MainActivity;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.config.LockConfig;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.entity.LoginData;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 //授权
 public class AuthActivity extends BaseActivity {
@@ -51,23 +49,25 @@ public class AuthActivity extends BaseActivity {
         final String userName = etAuthUser.getText().toString().trim();
         String pwd = etAuthPwd.getText().toString().trim();
         if (TextUtils.isEmpty(userName) || TextUtils.isEmpty(pwd)) {
-            ToastUtil.showToast(getApplicationContext(), "不能为空");
+            T.show("不能为空");
             return;
         }
-        LockHttpAction.getHttpAction(this).auth("eagleking_"+userName, pwd, LockConfig.REDIRECT_URI, new OnHttpRequestCallback<LockUser>() {
+        LockHttpAction.getHttpAction(this).auth(userName, pwd, new OnHttpRequestCallback<LoginData>() {
+
             @Override
-            public void onFailure(int errorCode) {
-                ToastUtil.showToast(getApplicationContext(), "发生错误，错误码" + errorCode);
+            public void onFailure(int errorCode, String desc) {
+                L.e("-------------error" + errorCode);
             }
 
             @Override
-            public void onSuccess(LockUser user) {
-                Timber.e("----------user:" + user);
-                if (user != null) {
-                    tvAuthAccessToken.setText(user.getAccess_token());
-                    tvAuthOpenid.setText(user.getOpenid() + "");
+            public void onSuccess(LoginData loginData) {
+                L.e("----------loginData:" + loginData);
+                if (loginData != null) {
+                    tvAuthAccessToken.setText(loginData.getSmartLockAccessToken());
+                    tvAuthOpenid.setText(loginData.getSmartLockUserId() + "");
+                    loginData.setAccount(userName);
                 }
-                ControlCenter.getControlCenter(getApplicationContext()).saveUserInfo(user);
+                ControlCenter.getControlCenter(getApplicationContext()).saveLoginData(loginData);
                 startNewActivity(MainActivity.class);
                 finish();
             }

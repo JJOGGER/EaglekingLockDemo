@@ -13,13 +13,6 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.bean.LockPwdRecord;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.http.HttpResult;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,10 +23,17 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.bean.KeyboardPasswdType;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.entity.LockPwdRecord;
+import cn.jcyh.eaglekinglockdemo.http.HttpResult;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.locklib.entity.KeyboardPasswdType;
+import cn.jcyh.utils.T;
 
 public class PwdManageActivity extends BaseActivity implements BaseQuickAdapter.OnItemClickListener {
     @BindView(R.id.tv_title)
@@ -48,7 +48,7 @@ public class PwdManageActivity extends BaseActivity implements BaseQuickAdapter.
     @Override
     protected void init() {
         tvTitle.setText("密码管理");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         rvContent.setLayoutManager(new LinearLayoutManager(this));
         mLockPwdRecords = new ArrayList<>();
         mAdapter = new BaseQuickAdapter<LockPwdRecord, BaseViewHolder>(R.layout.rv_pwd_record_item, mLockPwdRecords) {
@@ -91,8 +91,9 @@ public class PwdManageActivity extends BaseActivity implements BaseQuickAdapter.
     @Override
     protected void loadData() {
         LockHttpAction.getHttpAction(this).getPwdsByLock(mLockKey.getLockId(), 1, 20, new OnHttpRequestCallback<HttpResult<LockPwdRecord>>() {
+
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
 
             }
 
@@ -120,7 +121,7 @@ public class PwdManageActivity extends BaseActivity implements BaseQuickAdapter.
                 resetPwd();
                 break;
             case R.id.tv_send:
-                startNewActivity(SendPwdActivity.class, "key", mLockKey);
+                startNewActivity(SendPwdActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 finish();
                 break;
         }
@@ -141,15 +142,16 @@ public class PwdManageActivity extends BaseActivity implements BaseQuickAdapter.
 
     private void resetFromServer(String pwdInfo, long timestamp) {
         LockHttpAction.getHttpAction(this).resetPwd(mLockKey.getLockId(), pwdInfo, timestamp, new OnHttpRequestCallback<Boolean>() {
+
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
                 cancelProgressDialog();
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
                 cancelProgressDialog();
-                ToastUtil.showToast(getApplicationContext(), "重置成功");
+                T.show("重置成功");
                 loadData();
             }
         });
@@ -176,9 +178,9 @@ public class PwdManageActivity extends BaseActivity implements BaseQuickAdapter.
                 case LockConstant.ACTION_RESET_PWD:
                     Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
                     if (Error.SUCCESS == error) {
-                        resetFromServer(intent.getStringExtra("pwdInfo"), intent.getLongExtra("timestamp", 0));
+                        resetFromServer(intent.getStringExtra(LockConstant.PWD_RESET_DATA), intent.getLongExtra(LockConstant.PWD_RESET_TIMESTAMP, 0));
                     } else {
-                        ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                        T.show(error.getDescription());
                         cancelProgressDialog();
                     }
                     break;

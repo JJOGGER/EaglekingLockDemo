@@ -1,0 +1,25 @@
+package cn.jcyh.doorbelldemo.receiver;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.telephony.TelephonyManager;
+
+import cn.jcyh.nimlib.observer.PhoneCallStateObserver;
+
+
+/**
+ * 来电状态监听
+ * <p/>
+ */
+public class IncomingCallReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(action)) {
+            final String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+            PhoneCallStateObserver.getInstance().onCallStateChanged(state);
+        }
+    }
+}

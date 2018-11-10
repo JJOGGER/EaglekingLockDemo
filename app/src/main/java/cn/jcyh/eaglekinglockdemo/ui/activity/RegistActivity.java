@@ -5,14 +5,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.utils.T;
 
 public class RegistActivity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -49,18 +48,19 @@ public class RegistActivity extends BaseActivity {
         String account = etAccount.getText().toString().trim();
         String pwd = etPwd.getText().toString().trim();
         if (TextUtils.isEmpty(account) || TextUtils.isEmpty(pwd)) {
-            ToastUtil.showToast(getApplicationContext(), "输入不能为空");
+             T.show("输入不能为空");
             return;
         }
         LockHttpAction.getHttpAction(this).regist(account, pwd, new OnHttpRequestCallback<Boolean>() {
-            @Override
-            public void onFailure(int errorCode) {
 
+            @Override
+            public void onFailure(int errorCode, String desc) {
+                T.show(desc);
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
-                ToastUtil.showToast(getApplicationContext(), "注册成功");
+                 T.show("注册成功");
                 finish();
             }
         });

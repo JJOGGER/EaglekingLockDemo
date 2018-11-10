@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import cn.jcyh.eaglekinglockdemo.utils.StatusUtil;
+import cn.jcyh.utils.StatusUtil;
 
 
 /**

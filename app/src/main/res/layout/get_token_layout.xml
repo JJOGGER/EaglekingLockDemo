@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/ll_get_token_container"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/et_username"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:background="@null"
+        android:gravity="bottom"
+        android:hint="@string/input_username"
+        android:paddingBottom="9dp"
+        android:paddingLeft="17dp"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/gray_888888"
+        android:textSize="16sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/et_username"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:background="@color/colorAccent"/>
+
+
+    <TextView
+        android:id="@+id/tv_get_token"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:layout_marginTop="33dp"
+        android:background="@drawable/login_btn_p_shape"
+        android:gravity="center"
+        android:text="@string/get_token"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+
+
+    <TextView
+        android:id="@+id/tv_login_direct"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="20dp"
+        android:text="@string/login_immediately"
+        android:textColor="@color/pink_ed814b"
+        android:textSize="14sp"/>
+</LinearLayout>

@@ -15,9 +15,6 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,8 +23,12 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 public class SendKeyActivity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -59,7 +60,7 @@ public class SendKeyActivity extends BaseActivity {
     protected void init() {
         super.init();
         tvTitle.setText("发送电子钥匙");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         mStartTime = System.currentTimeMillis();
         mEndTime = mStartTime + 1000 * 60 * 60;
         Date date = new Date(mStartTime);
@@ -71,7 +72,6 @@ public class SendKeyActivity extends BaseActivity {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String startTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + startTime);
                 mStartTime = date.getTime();
                 tvStartTime.setText(startTime);
 
@@ -82,7 +82,7 @@ public class SendKeyActivity extends BaseActivity {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String endTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + endTime);
+                L.e("---------->format" + endTime);
                 tvEndTime.setText(endTime);
                 mEndTime = date.getTime();
             }
@@ -186,12 +186,12 @@ public class SendKeyActivity extends BaseActivity {
     private void sendKey() {
         String account = etKeyAccount.getText().toString().trim();
         if (TextUtils.isEmpty(account)) {
-            ToastUtil.showToast(getApplicationContext(), "输入不能为空");
+             T.show( "输入不能为空");
             return;
         }
         if (mCurrentType == 0)
             if (mEndTime - mStartTime <= 0) {
-                ToastUtil.showToast(getApplicationContext(), "时间选择有误");
+                 T.show( "时间选择有误");
                 return;
             }
         showProgressDialog();
@@ -209,15 +209,16 @@ public class SendKeyActivity extends BaseActivity {
                 mEndTime,
                 "",
                 new OnHttpRequestCallback<Boolean>() {
+
                     @Override
-                    public void onFailure(int errorCode) {
-                        ToastUtil.showToast(getApplicationContext(), "发送失败" + errorCode);
+                    public void onFailure(int errorCode, String desc) {
+                         T.show( "发送失败" + errorCode);
                         cancelProgressDialog();
                     }
 
                     @Override
                     public void onSuccess(Boolean abBoolean) {
-                        ToastUtil.showToast(getApplicationContext(), "发送成功");
+                         T.show( "发送成功");
                         cancelProgressDialog();
                     }
                 }

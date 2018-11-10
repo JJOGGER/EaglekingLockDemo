@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/ll_get_token_succ"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_marginTop="76dp"
+              android:gravity="center_horizontal"
+              android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:src="@mipmap/login_icon_ok"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="18dp"
+        android:text="@string/get_success"
+        android:textColor="@color/colorAccent"
+        android:textSize="24sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="9dp"
+        android:text="@string/start_hint_msg"
+        android:textColor="@color/black_333333"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/tv_login2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="33dp"
+        android:layout_marginRight="33dp"
+        android:layout_marginTop="33dp"
+        android:background="@drawable/login_btn_p_shape"
+        android:gravity="center"
+        android:text="@string/login_direct"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+</LinearLayout>

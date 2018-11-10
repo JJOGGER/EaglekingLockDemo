@@ -11,19 +11,18 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.utils.T;
 
 public class AddFingerprint3Activity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -46,11 +45,11 @@ public class AddFingerprint3Activity extends BaseActivity {
     @Override
     protected void init() {
         tvTitle.setText("添加指纹");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         mLockAPI = MyLockAPI.getLockAPI();
-        int maxVail = getIntent().getIntExtra("maxVail", 0);
-        mStartTime = getIntent().getLongExtra("startDate", 0);
-        mEndTime = getIntent().getLongExtra("endDate", 0);
+        int maxVail = getIntent().getIntExtra(LockConstant.MAX_VALIDATE, 0);
+        mStartTime = getIntent().getLongExtra(LockConstant.START_DATE, 0);
+        mEndTime = getIntent().getLongExtra(LockConstant.END_DATE, 0);
         tvFingerprintPro.setText(String.format("(%d/%d)", 0, maxVail));
         ivFingerprintPro.setImageResource(R.mipmap.fingerprint0);
         mReceiver = new MyReceiver();
@@ -77,16 +76,16 @@ public class AddFingerprint3Activity extends BaseActivity {
             String action = intent.getAction();
             if (TextUtils.isEmpty(action)) return;
             if (!LockConstant.ACTION_LOCK_FINGERPRINT.equals(action)) return;
-            String type = intent.getStringExtra("type");
+            String type = intent.getStringExtra(LockConstant.TYPE);
             Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
             switch (type) {
                 case LockConstant.TYPE_ADD_FINGERPRINT:
                     if (Error.SUCCESS == error) {
-                        int status = intent.getIntExtra("status", -1);
-                        ivFingerprintPro.setImageResource(R.mipmap.fingerprint4);
-                        tvFingerprintPro.setText(String.format("(%d/%d)", mMaxVail, mMaxVail));
+                        int status = intent.getIntExtra(LockConstant.STATUS, -1);
                         if (status == 2) {
-                            long FRNo = intent.getLongExtra("FRNo", 0);
+                            ivFingerprintPro.setImageResource(R.mipmap.fingerprint4);
+                            tvFingerprintPro.setText(String.format("(%d/%d)", mMaxVail, mMaxVail));
+                            long FRNo = intent.getLongExtra(LockConstant.FRNO, 0);
                             //添加成功
                             showProgressDialog();
                             if (mStartTime != 0) {
@@ -97,7 +96,7 @@ public class AddFingerprint3Activity extends BaseActivity {
                                     mLockAPI.modifyFingerPrintPeriod(null, FRNo, mLockKey);
                                 } else {
                                     Bundle bundle = new Bundle();
-                                    bundle.putLong("FRNo", FRNo);
+                                    bundle.putLong(LockConstant.FRNO, FRNo);
                                     MyLockAPI.sBleSession.setArgments(bundle);
                                     mLockAPI.connect(mLockKey.getLockMac(), Operation.MODIFY_FINGERPRINT_PERIOD);
                                 }
@@ -106,13 +105,13 @@ public class AddFingerprint3Activity extends BaseActivity {
                             }
                         }
                     } else {
-                        ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                        T.show( error.getDescription());
                         cancelProgressDialog();
                     }
                     break;
                 case LockConstant.TYPE_COLLECTION_FINGERPRINT:
-                    int vail = intent.getIntExtra("vail", 0);
-                    mMaxVail = intent.getIntExtra("maxVail", 0);
+                    int vail = intent.getIntExtra(LockConstant.VALIDATE, 0);
+                    mMaxVail = intent.getIntExtra(LockConstant.MAX_VALIDATE, 0);
                     switch (vail) {
                         case 1:
                             ivFingerprintPro.setImageResource(R.mipmap.fingerprint1);
@@ -127,9 +126,9 @@ public class AddFingerprint3Activity extends BaseActivity {
                     tvFingerprintPro.setText(String.format("(%d/%d)", vail, mMaxVail));
                     break;
                 case LockConstant.TYPE_MODIFY_FINGERPRINT:
-                    mStartTime = intent.getLongExtra("startDate", 0);
-                    mEndTime = intent.getLongExtra("endDate", 0);
-                    addFingerprint2Server(intent.getLongExtra("FRNo", 0));
+                    mStartTime = intent.getLongExtra(LockConstant.START_DATE, 0);
+                    mEndTime = intent.getLongExtra(LockConstant.END_DATE, 0);
+                    addFingerprint2Server(intent.getLongExtra(LockConstant.FRNO, 0));
                     break;
             }
 
@@ -142,14 +141,15 @@ public class AddFingerprint3Activity extends BaseActivity {
      */
     private void addFingerprint2Server(long FRNo) {
         LockHttpAction.getHttpAction(this).addFingerprint(mLockKey.getLockId(), String.valueOf(FRNo), mStartTime, mEndTime, new OnHttpRequestCallback<Boolean>() {
+
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
                 cancelProgressDialog();
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
-                ToastUtil.showToast(getApplicationContext(), "添加成功");
+                T.show( "添加成功");
                 cancelProgressDialog();
                 finish();
             }

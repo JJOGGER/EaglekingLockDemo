@@ -20,12 +20,6 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.contrarywind.view.WheelView;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.bean.LockKeyboardPwd;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,13 +31,19 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseFragment;
-import cn.jcyh.eaglekinglockdemo.bean.KeyboardPasswdType;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.entity.LockKeyboardPwd;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
 import cn.jcyh.eaglekinglockdemo.ui.dialog.CommonEditDialog;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.locklib.entity.KeyboardPasswdType;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 /**
  * Created by jogger on 2018/5/7. 发送密码
@@ -101,7 +101,7 @@ public class SendPwdFragment extends BaseFragment {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String startTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + startTime);
+                L.e("---------->format" + startTime);
                 mStartTime = date.getTime();
                 tvStartTime.setText(startTime);
 
@@ -111,7 +111,7 @@ public class SendPwdFragment extends BaseFragment {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String startTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + startTime);
+                L.e("---------->format" + startTime);
                 mEndTime = date.getTime();
                 tvEndTime.setText(startTime);
             }
@@ -226,9 +226,9 @@ public class SendPwdFragment extends BaseFragment {
                             );
                         else {
                             Bundle bundle = new Bundle();
-                            bundle.putString("pwd", mCustomPwd);
-                            bundle.putLong("startTime", mStartTime);
-                            bundle.putLong("endTime", mEndTime);
+                            bundle.putString(LockConstant.PWD, mCustomPwd);
+                            bundle.putLong(LockConstant.START_DATE, mStartTime);
+                            bundle.putLong(LockConstant.END_DATE, mEndTime);
                             MyLockAPI.getLockAPI().connect(mLockKey.getLockMac(), bundle, Operation.CUSTOM_PWD);
                         }
                     }
@@ -264,14 +264,15 @@ public class SendPwdFragment extends BaseFragment {
                 mStartTime,
                 mEndTime,
                 new OnHttpRequestCallback<LockKeyboardPwd>() {
+
                     @Override
-                    public void onFailure(int errorCode) {
-                        Timber.e("-------error:" + errorCode);
+                    public void onFailure(int errorCode, String desc) {
+                        L.e("-------error:" + errorCode);
                     }
 
                     @Override
                     public void onSuccess(LockKeyboardPwd lockKeyboardPwd) {
-                        Timber.e("--------lock:" + lockKeyboardPwd);
+                        L.e("--------lock:" + lockKeyboardPwd);
                         if (lockKeyboardPwd != null)
                             tvPwd.setText(lockKeyboardPwd.getKeyboardPwd());
                     }
@@ -295,23 +296,24 @@ public class SendPwdFragment extends BaseFragment {
                 case LockConstant.ACTION_CUSTOM_PWD:
                     if (!isShowingDialog()) return;
                     cancelProgressDialog();
-                    Timber.e("------>" + intent.getStringExtra(LockConstant.ERROR_MSG));
+                    L.e("------>" + intent.getStringExtra(LockConstant.ERROR_MSG));
                     Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
                     if (!error.getErrorCode().equals(Error.SUCCESS.getErrorCode())) {
-                        ToastUtil.showToast(mActivity, "设置失败");
+                        T.show( "设置失败");
                         return;
                     }
                     LockHttpAction.getHttpAction(mActivity).customPwd(mLockKey.getLockId(), mCustomPwd, mStartTime, mEndTime, new OnHttpRequestCallback<LockKeyboardPwd>() {
+
                         @Override
-                        public void onFailure(int errorCode) {
+                        public void onFailure(int errorCode, String desc) {
                             cancelProgressDialog();
-                            ToastUtil.showToast(mActivity, "设置失败");
+                            T.show( "设置失败");
                         }
 
                         @Override
                         public void onSuccess(LockKeyboardPwd lockKeyboardPwd) {
                             tvPwd.setText(mCustomPwd);
-                            ToastUtil.showToast(mActivity, "设置成功");
+                            T.show( "设置成功");
                         }
                     });
                     break;

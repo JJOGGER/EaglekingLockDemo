@@ -1,1 +1,1 @@
-include ':app', ':locklib', ':pickerview'
+include ':app', ':pickerview','eaglelocklib','jcvlib'

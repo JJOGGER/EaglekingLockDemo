@@ -10,7 +10,6 @@ import android.view.View;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.bean.LockKey;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 
@@ -20,9 +19,11 @@ import java.util.List;
 import butterknife.BindView;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseFragment;
+import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
+import cn.jcyh.utils.L;
 
 /**
  * Created by jogger on 2018/5/4.
@@ -44,7 +45,7 @@ public class LockListFragment extends BaseFragment {
     public void init() {
         //请求打开蓝牙
         mLockAPI = MyLockAPI.getLockAPI();
-        mLockAPI.requestBleEnable(mActivity);
+//        mLockAPI.requestBleEnable(mActivity);
 //        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 //        bluetoothAdapter.enable();
         mLockAPI.startBleService(mActivity);
@@ -53,13 +54,13 @@ public class LockListFragment extends BaseFragment {
                 .onGranted(new Action() {
                     @Override
                     public void onAction(List<String> permissions) {
-                        Timber.e("------onGranted");
+                        L.e("------onGranted");
                         mLockAPI.startBTDeviceScan();
                     }
                 }).onDenied(new Action() {
             @Override
             public void onAction(List<String> permissions) {
-                Timber.e("------onDenied");
+                L.e("------onDenied");
             }
         }).start();
         mLockKeys = new ArrayList<>();
@@ -77,12 +78,11 @@ public class LockListFragment extends BaseFragment {
                 ControlCenter.sCurrentKey = (LockKey) adapter.getItem(position);
                 LockMainFragment lockMainFragment = new LockMainFragment();
                 Bundle bundle = new Bundle();
-                bundle.putParcelable("key", (Parcelable) adapter.getItem(position));
+                bundle.putParcelable(LockConstant.LOCK_KEY, (Parcelable) adapter.getItem(position));
                 lockMainFragment.setArguments(bundle);
                 getFragmentManager().beginTransaction()
                         .add(R.id.fl_container, lockMainFragment, LockMainFragment.class.getName())
                         .commit();
-//                startNewActivity(OperateActivity.class, "key", adapter.getItem(position));
             }
         });
     }

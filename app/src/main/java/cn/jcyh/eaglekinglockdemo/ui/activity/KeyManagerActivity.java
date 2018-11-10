@@ -13,13 +13,6 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.KeyStatus;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.http.HttpResult;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,10 +23,17 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
+import cn.jcyh.eaglekinglockdemo.constant.KeyStatus;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.HttpResult;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 //钥匙管理
 public class KeyManagerActivity extends BaseActivity implements BaseQuickAdapter.OnItemClickListener {
@@ -55,7 +55,7 @@ public class KeyManagerActivity extends BaseActivity implements BaseQuickAdapter
     @Override
     protected void init() {
         tvTitle.setText("电子钥匙");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         mLockKeys = new ArrayList<>();
         mAdapter = new BaseQuickAdapter<LockKey, BaseViewHolder>(R.layout.rv_keys_item, mLockKeys) {
             @Override
@@ -70,18 +70,18 @@ public class KeyManagerActivity extends BaseActivity implements BaseQuickAdapter
                 } else {
                     helper.setText(R.id.tv_type, "永久");
                 }
-                switch (item.getKeyStatus()){
-                    case "110402":
-                        helper.setText(R.id.tv_state,"");
+                switch (item.getKeyStatus()) {
+                    case KeyStatus.KEY_WAIT_RECEIVED:
+                        helper.setText(R.id.tv_state, "");
                         break;
-                    case "110405":
-                        helper.setText(R.id.tv_state,"已冻结");
+                    case KeyStatus.KEY_FROZEN:
+                        helper.setText(R.id.tv_state, "已冻结");
                         break;
-                    case "110408":
-                        helper.setText(R.id.tv_state,"已删除");
+                    case KeyStatus.KEY_DELETED:
+                        helper.setText(R.id.tv_state, "已删除");
                         break;
-                    case "110410":
-                        helper.setText(R.id.tv_state,"已重置");
+                    case KeyStatus.KEY_RESET:
+                        helper.setText(R.id.tv_state, "已重置");
                         break;
                 }
             }
@@ -97,9 +97,10 @@ public class KeyManagerActivity extends BaseActivity implements BaseQuickAdapter
     @Override
     protected void loadData() {
         LockHttpAction.getHttpAction(this).getLockKeys(mLockKey.getLockId(), 1, 20, new OnHttpRequestCallback<HttpResult<LockKey>>() {
+
             @Override
-            public void onFailure(int errorCode) {
-                Timber.e("----loadData--errorCode:" + errorCode);
+            public void onFailure(int errorCode, String desc) {
+                L.e("----loadData--errorCode:" + errorCode);
             }
 
             @Override
@@ -136,36 +137,41 @@ public class KeyManagerActivity extends BaseActivity implements BaseQuickAdapter
         }
     }
 
+    /**
+     * 重置普通钥匙
+     */
     private void resetFromServer() {
         LockHttpAction.getHttpAction(this).resetKey(mLockKey.getLockId(), new OnHttpRequestCallback<Boolean>() {
+
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
                 cancelProgressDialog();
-                ToastUtil.showToast(getApplicationContext(), "操作失败" + errorCode);
+                 T.show("操作失败" + errorCode);
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
                 cancelProgressDialog();
-                ToastUtil.showToast(getApplicationContext(), "重置成功");
+                 T.show("重置成功");
                 loadData();
             }
         });
     }
 
     private void clearKey() {
-        Timber.e("----------mlockkey:" + mLockKey);
+        L.e("----------mlockkey:" + mLockKey);
         LockHttpAction.getHttpAction(this).delAllKeys(
                 mLockKey.getLockId(),
                 new OnHttpRequestCallback<Boolean>() {
+
                     @Override
-                    public void onFailure(int errorCode) {
-                        ToastUtil.showToast(getApplicationContext(), "操作失败" + errorCode);
+                    public void onFailure(int errorCode, String desc) {
+                         T.show("操作失败" + errorCode);
                     }
 
                     @Override
                     public void onSuccess(Boolean aBoolean) {
-                        ToastUtil.showToast(getApplicationContext(), "清空成功");
+                         T.show("清空成功");
                         loadData();
                     }
                 });
@@ -203,7 +209,7 @@ public class KeyManagerActivity extends BaseActivity implements BaseQuickAdapter
                     if (Error.SUCCESS == error) {
                         resetFromServer();
                     } else {
-                        ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                         T.show(error.getDescription());
                         cancelProgressDialog();
                     }
                     break;

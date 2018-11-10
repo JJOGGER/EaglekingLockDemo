@@ -10,7 +10,6 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
-import com.ttlock.bl.sdk.bean.LockKey;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,7 +18,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
+import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
 
 public class AddFingerprintActivity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -47,7 +47,7 @@ public class AddFingerprintActivity extends BaseActivity {
     @Override
     protected void init() {
         tvTitle.setText("添加指纹");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         scIsForever.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -73,7 +73,6 @@ public class AddFingerprintActivity extends BaseActivity {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String startTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + startTime);
                 mStartTime = date.getTime();
                 tvStartTime.setText(startTime);
 
@@ -83,7 +82,6 @@ public class AddFingerprintActivity extends BaseActivity {
             @Override
             public void onTimeSelect(Date date, View v) {
                 String startTime = SimpleDateFormat.getInstance().format(date);
-                Timber.e("---------->format" + startTime);
                 mEndTime = date.getTime();
                 tvEndTime.setText(startTime);
             }
@@ -107,9 +105,9 @@ public class AddFingerprintActivity extends BaseActivity {
                 break;
             case R.id.tv_confirm:
                 Intent intent = new Intent(this, AddFingerprint2Activity.class);
-                intent.putExtra("startDate", mStartTime);
-                intent.putExtra("endDate", mEndTime);
-                intent.putExtra("key",mLockKey);
+                intent.putExtra(LockConstant.START_DATE, mStartTime);
+                intent.putExtra(LockConstant.END_DATE, mEndTime);
+                intent.putExtra(LockConstant.LOCK_KEY,mLockKey);
                 startActivity(intent);
                 break;
         }

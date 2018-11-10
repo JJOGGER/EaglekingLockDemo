@@ -7,11 +7,6 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.bean.LockRecord;
-import com.ttlock.bl.sdk.http.HttpResult;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +17,12 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
+import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.HttpResult;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
+import cn.jcyh.locklib.entity.LockRecord;
 
 public class LockRecordActivity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -40,7 +41,7 @@ public class LockRecordActivity extends BaseActivity {
     @Override
     protected void init() {
         tvTitle.setText("开锁记录");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         mLockRecords = new ArrayList<>();
         mAdapter = new BaseQuickAdapter<LockRecord, BaseViewHolder>(R.layout.rv_lock_record_item, mLockRecords) {
             @Override
@@ -110,8 +111,9 @@ public class LockRecordActivity extends BaseActivity {
         long endDate = System.currentTimeMillis();
         long startDate = endDate - 60 * 1000 * 60 * 24 * 3;
         LockHttpAction.getHttpAction(this).getLockRecords(mLockKey.getLockId(), startDate, endDate, 1, 20, new OnHttpRequestCallback<HttpResult<LockRecord>>() {
+
             @Override
-            public void onFailure(int errorCode) {
+            public void onFailure(int errorCode, String desc) {
 
             }
 

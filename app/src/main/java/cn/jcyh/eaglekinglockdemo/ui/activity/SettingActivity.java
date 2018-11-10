@@ -11,12 +11,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.http.LockHttpAction;
-import com.ttlock.bl.sdk.http.OnHttpRequestCallback;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -26,9 +20,14 @@ import cn.jcyh.eaglekinglockdemo.MainActivity;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.eaglekinglockdemo.http.LockHttpAction;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
+import cn.jcyh.eaglekinglockdemo.http.OnHttpRequestCallback;
 import cn.jcyh.eaglekinglockdemo.ui.dialog.CommonEditDialog;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.utils.T;
 
 public class SettingActivity extends BaseActivity {
     @BindView(R.id.tv_title)
@@ -56,7 +55,7 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     protected void init() {
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         tvLockId.setText(mLockKey.getLockName());
         tvLockName.setText(mLockKey.getLockAlias() + "");
         if (mLockKey.getEndDate() == 0)
@@ -80,7 +79,7 @@ public class SettingActivity extends BaseActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, intentFilter);
     }
 
-    @OnClick({R.id.ibtn_back, R.id.rl_lock_name, R.id.rl_admin_pwd, R.id.rl_lock_clock, R.id.tv_delete})
+    @OnClick({R.id.ibtn_back, R.id.rl_lock_name, R.id.rl_admin_pwd, R.id.rl_lock_clock, R.id.tv_delete,R.id.rl_remote_unlock})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ibtn_back:
@@ -93,10 +92,14 @@ public class SettingActivity extends BaseActivity {
                 adminLockPwd();
                 break;
             case R.id.rl_lock_clock:
-                startNewActivity(LockClockActivity.class, "key", mLockKey);
+                startNewActivity(LockClockActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_delete:
                 deleteLock();
+                break;
+            case R.id.rl_remote_unlock:
+                // TODO: 2018/6/25  调用服务器接口，传送猫眼帐号并发送钥匙
+
                 break;
         }
     }
@@ -114,7 +117,7 @@ public class SettingActivity extends BaseActivity {
                         MyLockAPI.getLockAPI().setAdminKeyboardPassword(null, mLockKey, content);
                     } else {
                         Bundle bundle = new Bundle();
-                        bundle.putString("password", content);
+                        bundle.putString(LockConstant.PWD, content);
                         MyLockAPI.sBleSession.setArgments(bundle);
                         MyLockAPI.getLockAPI().connect(mLockKey.getLockMac(), Operation.SET_ADMIN_KEYBOARD_PASSWORD);
                     }
@@ -138,14 +141,15 @@ public class SettingActivity extends BaseActivity {
                 if (isConfirm) {
                     final String content = commonEditDialog.getEditText();
                     LockHttpAction.getHttpAction(getApplicationContext()).lockRename(mLockKey.getLockId(), content, new OnHttpRequestCallback<Boolean>() {
+
                         @Override
-                        public void onFailure(int errorCode) {
-                            ToastUtil.showToast(getApplicationContext(), "修改失败" + errorCode);
+                        public void onFailure(int errorCode, String desc) {
+                             T.show("修改失败" + errorCode);
                         }
 
                         @Override
                         public void onSuccess(Boolean aBoolean) {
-                            ToastUtil.showToast(getApplicationContext(), "修改成功");
+                             T.show("修改成功");
                             setResult(RESULT_OK);
                             tvLockName.setText(content);
                         }
@@ -170,14 +174,15 @@ public class SettingActivity extends BaseActivity {
 
     private void deleteFromServer() {
         LockHttpAction.getHttpAction(this).delKey(mLockKey.getKeyId(), new OnHttpRequestCallback<Boolean>() {
+
             @Override
-            public void onFailure(int errorCode) {
-                ToastUtil.showToast(getApplicationContext(), "删除失败" + errorCode);
+            public void onFailure(int errorCode, String desc) {
+                 T.show("删除失败" + errorCode);
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
-                ToastUtil.showToast(getApplicationContext(), "删除成功");
+                 T.show("删除成功");
                 startNewActivity(MainActivity.class);
                 finish();
             }
@@ -203,15 +208,15 @@ public class SettingActivity extends BaseActivity {
                     if (Error.SUCCESS == error) {
                         deleteFromServer();
                     } else {
-                        ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                         T.show(error.getDescription());
                     }
                     break;
                 case LockConstant.ACTION_SET_ADMIN_PWD:
                     cancelProgressDialog();
                     if (Error.SUCCESS == error) {
-                        setAdminPwd(intent.getStringExtra("password"));
+                        setAdminPwd(intent.getStringExtra(LockConstant.PWD));
                     } else {
-                        ToastUtil.showToast(getApplicationContext(), error.getDescription());
+                         T.show(error.getDescription());
                     }
                     break;
             }
@@ -220,14 +225,15 @@ public class SettingActivity extends BaseActivity {
 
     private void setAdminPwd(final String password) {
         LockHttpAction.getHttpAction(getApplicationContext()).changeAdminKeyboardPwd(mLockKey.getLockId(), password, new OnHttpRequestCallback<Boolean>() {
+
             @Override
-            public void onFailure(int errorCode) {
-                ToastUtil.showToast(getApplicationContext(), "修改失败" + errorCode);
+            public void onFailure(int errorCode, String desc) {
+                 T.show("修改失败" + errorCode);
             }
 
             @Override
             public void onSuccess(Boolean aBoolean) {
-                ToastUtil.showToast(getApplicationContext(), "修改成功");
+                 T.show("修改成功");
                 tvLockPwd.setText(password);
                 setResult(RESULT_OK);
             }

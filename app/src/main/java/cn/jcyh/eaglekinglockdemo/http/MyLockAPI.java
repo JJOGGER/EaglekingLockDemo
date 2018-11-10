@@ -1,16 +1,20 @@
 package cn.jcyh.eaglekinglockdemo.http;
 
+import android.content.Context;
 import android.os.Bundle;
-
-import com.ttlock.bl.sdk.api.LockAPI;
-import com.ttlock.bl.sdk.bean.BleSession;
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.scanner.ExtendedBluetoothDevice;
 
 import java.util.List;
 
+import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.entity.BleSession;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
+import cn.jcyh.locklib.api.LockAPI;
+import cn.jcyh.locklib.callback.LockCallback;
+import cn.jcyh.locklib.scanner.ExtendedBluetoothDevice;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.SPUtil;
 
 /**
  * Created by jogger on 2018/5/14.
@@ -33,10 +37,14 @@ public class MyLockAPI extends LockAPI {
                     sLockAPI = new MyLockAPI();
                 }
             }
-        sUid = ControlCenter.getControlCenter(sContext).getUserInfo().getOpenid();
+        sUid = ControlCenter.getControlCenter(sContext).getLoginData().getSmartLockUserId();
         return sLockAPI;
     }
-
+    public static void init(Context context, LockCallback lockCallback, String CLIENT_ID, String CLIENT_SECRET) {
+        LockAPI.init(context.getApplicationContext(), lockCallback);
+        SPUtil.getInstance().put(LockConstant.CLIENT_ID, CLIENT_ID);
+        SPUtil.getInstance().put(LockConstant.CLIENT_SECRET, CLIENT_SECRET);
+    }
     public synchronized void connect(String address, String operation) {
         sBleSession.setOperation(operation);
         sBleSession.setLockmac(address);
@@ -73,6 +81,7 @@ public class MyLockAPI extends LockAPI {
     }
 
     public void unlockByUser(ExtendedBluetoothDevice extendedBluetoothDevice, LockKey lockKey) {
+        L.e("--------unlockByUser"+sUid+lockKey);
         unlockByUser(extendedBluetoothDevice, sUid, lockKey.getLockVersion(), lockKey.getStartDate(), lockKey.getEndDate(), lockKey.getLockKey(), lockKey.getLockFlagPos(), lockKey.getAesKeystr(), lockKey.getTimezoneRawOffset());
     }
 

@@ -1,6 +1,6 @@
 package cn.jcyh.eaglekinglockdemo.ui.activity;
 
-import com.ttlock.bl.sdk.bean.LockUser;
+import cn.jcyh.eaglekinglockdemo.entity.LockUser;
 
 import cn.jcyh.eaglekinglockdemo.MainActivity;
 import cn.jcyh.eaglekinglockdemo.R;

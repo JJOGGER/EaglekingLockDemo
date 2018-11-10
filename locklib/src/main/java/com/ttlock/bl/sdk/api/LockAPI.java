@@ -13,15 +13,14 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresPermission;
 import android.text.TextUtils;
+import android.util.Log;
 
-import com.ttlock.bl.sdk.bean.LockKey;
 import com.ttlock.bl.sdk.callback.LockCallback;
 import com.ttlock.bl.sdk.command.CommandUtil;
 import com.ttlock.bl.sdk.constant.Constant;
 import com.ttlock.bl.sdk.entity.Error;
 import com.ttlock.bl.sdk.entity.LockVersion;
 import com.ttlock.bl.sdk.entity.TransferData;
-import com.ttlock.bl.sdk.http.LockHttpAction;
 import com.ttlock.bl.sdk.scanner.ExtendedBluetoothDevice;
 import com.ttlock.bl.sdk.service.BluetoothLeService;
 import com.ttlock.bl.sdk.util.DigitUtil;
@@ -214,6 +213,7 @@ public class LockAPI {
         } else {
             String adminPs;
             String unlockKey;
+            Log.e("LOCKAPI","------------LockAPI"+!LockHttpAction.isNetworkAvailable(sContext)+"-->"+lockType);
             if (!LockHttpAction.isNetworkAvailable(sContext)) {
                 sLockCallback.onAddAdministrator(extendedBluetoothDevice, null, null, null, null, null, null, 0L, null,
                         -1, null, null, null, Error.LOCK_OPERATE_FAILED);

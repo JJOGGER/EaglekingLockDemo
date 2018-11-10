@@ -17,8 +17,8 @@ import java.io.Serializable;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cn.jcyh.eaglekinglockdemo.R;
-import cn.jcyh.eaglekinglockdemo.utils.ScreenUtil;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.ScreenUtil;
 
 /**
  * Created by jogger on 2017/3/15.
@@ -163,7 +163,7 @@ public abstract class BaseFragment extends Fragment {
             intent.putExtra(key, (Serializable[]) value);
         }
         if (value instanceof Parcelable) {
-            Timber.e("-------value:" + value);
+            L.e("-------value:" + value);
             intent.putExtra(key, (Parcelable) value);
         }
         if (value instanceof Parcelable[]) {

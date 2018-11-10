@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_none"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="97dp"
+        android:src="@mipmap/peephole_push_blank_page"/>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/srl_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:animateLayoutChanges="false"
+                />
+            <include
+                layout="@layout/edit_bottom_layout"
+                android:visibility="gone"
+                />
+            <!--<FrameLayout-->
+                <!--android:id="@+id/fl_bottom"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="74dp"-->
+                <!--android:layout_gravity="bottom"-->
+                <!--android:visibility="gone">-->
+
+                <!--<View-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="0.5dp"-->
+                    <!--android:background="@color/gray_dcdcdc"/>-->
+
+                <!--<RelativeLayout-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center">-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tv_choose_all"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:drawablePadding="9dp"-->
+                        <!--android:drawableTop="@mipmap/room_icon_selected_all"-->
+                        <!--android:gravity="center_horizontal"-->
+                        <!--android:paddingTop="9dp"-->
+                        <!--android:text="@string/c_all"-->
+                        <!--android:textSize="16sp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tv_delete"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:layout_toRightOf="@id/tv_choose_all"-->
+                        <!--android:drawablePadding="9dp"-->
+                        <!--android:drawableTop="@mipmap/room_icon_delete"-->
+                        <!--android:gravity="center_horizontal"-->
+                        <!--android:paddingLeft="35dp"-->
+                        <!--android:text="@string/delete"-->
+                        <!--android:textSize="16sp"/>-->
+                <!--</RelativeLayout>-->
+            <!--</FrameLayout>-->
+        </LinearLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</FrameLayout>

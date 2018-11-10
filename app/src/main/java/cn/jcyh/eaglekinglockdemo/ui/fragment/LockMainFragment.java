@@ -10,11 +10,6 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.bean.LockKey;
-import com.ttlock.bl.sdk.constant.Operation;
-import com.ttlock.bl.sdk.entity.Error;
-import com.ttlock.bl.sdk.util.DigitUtil;
-
 import java.util.List;
 
 import butterknife.BindView;
@@ -22,7 +17,9 @@ import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseFragment;
 import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.constant.Operation;
 import cn.jcyh.eaglekinglockdemo.control.ControlCenter;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
 import cn.jcyh.eaglekinglockdemo.http.MyLockAPI;
 import cn.jcyh.eaglekinglockdemo.ui.activity.FingerprintManageActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.ICManageActivity;
@@ -32,8 +29,10 @@ import cn.jcyh.eaglekinglockdemo.ui.activity.PwdManageActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.SendKeyActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.SendPwdActivity;
 import cn.jcyh.eaglekinglockdemo.ui.activity.SettingActivity;
-import cn.jcyh.eaglekinglockdemo.utils.Timber;
-import cn.jcyh.eaglekinglockdemo.utils.ToastUtil;
+import cn.jcyh.locklib.entity.Error;
+import cn.jcyh.locklib.util.DigitUtil;
+import cn.jcyh.utils.L;
+import cn.jcyh.utils.T;
 
 /**
  * Created by jogger on 2018/5/4.锁主页
@@ -62,7 +61,7 @@ public class LockMainFragment extends BaseFragment {
     @Override
     public void init() {
         mLockAPI = MyLockAPI.getLockAPI();
-        mLockKey = getArguments().getParcelable("key");
+        mLockKey = getArguments().getParcelable(LockConstant.LOCK_KEY);
         assert mLockKey != null;
         mReceiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -75,7 +74,7 @@ public class LockMainFragment extends BaseFragment {
     @Override
     public void loadData() {
         super.loadData();
-        Timber.e("--------------loadData");
+        L.e("--------------loadData");
         List<LockKey> lockKeys = ControlCenter.getControlCenter(mActivity).getLockKeys();
         if (lockKeys == null) return;
         for (int i = 0; i < lockKeys.size(); i++) {
@@ -97,29 +96,29 @@ public class LockMainFragment extends BaseFragment {
                 unlock();
                 break;
             case R.id.tv_send_key:
-                startNewActivity(SendKeyActivity.class, "key", mLockKey);
+                startNewActivity(SendKeyActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_send_pwd:
-                startNewActivity(SendPwdActivity.class, "key", mLockKey);
+                startNewActivity(SendPwdActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_key_manage:
-                startNewActivity(KeyManagerActivity.class, "key", mLockKey);
+                startNewActivity(KeyManagerActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_pwd_manage:
-                startNewActivity(PwdManageActivity.class, "key", mLockKey);
+                startNewActivity(PwdManageActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_ic_card:
-                startNewActivity(ICManageActivity.class, "key", mLockKey);
+                startNewActivity(ICManageActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_fingerprint:
-                startNewActivity(FingerprintManageActivity.class, "key", mLockKey);
+                startNewActivity(FingerprintManageActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_record:
-                startNewActivity(LockRecordActivity.class,"key",mLockKey);
+                startNewActivity(LockRecordActivity.class, LockConstant.LOCK_KEY, mLockKey);
                 break;
             case R.id.tv_set:
                 Intent intent = new Intent(mActivity, SettingActivity.class);
-                intent.putExtra("key", mLockKey);
+                intent.putExtra(LockConstant.LOCK_KEY, mLockKey);
                 startActivityForResult(intent, 1);
                 break;
         }
@@ -161,7 +160,7 @@ public class LockMainFragment extends BaseFragment {
                 case LockConstant.ACTION_UNLOCK:
                     cancelProgressDialog();
                     Error error = (Error) intent.getSerializableExtra(LockConstant.ERROR_MSG);
-                    ToastUtil.showToast(mActivity, error.getDescription());
+                    T.show( error.getDescription());
                     break;
             }
         }

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_item"
+    android:layout_marginLeft="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:orientation="vertical">
+
+
+    <CheckBox
+        android:id="@+id/cb_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:background="@drawable/cb_choose_records_selector"
+        android:button="@null"
+        android:enabled="false"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/iv_img"
+        android:layout_width="113dp"
+        android:layout_height="75dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="3dp"
+        android:layout_toRightOf="@id/cb_select"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/peephole_push_photo_ph"/>
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="155dp"
+        android:paddingTop="5dp"
+        android:text="18:06"
+        android:textColor="@color/gray_888888"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_time"
+        android:paddingLeft="155dp"
+        android:text="有人按门铃"
+        android:textColor="@color/black_333333"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_title"
+        android:paddingLeft="155dp"
+        android:text="大门"
+        android:textColor="@color/gray_888888"
+        android:textSize="12sp"/>
+</RelativeLayout>

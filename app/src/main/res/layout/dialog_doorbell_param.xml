@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:paddingLeft="12dp"
+            android:text="@string/doorbell_set"
+            android:textColor="@color/colorAccent"
+            android:textSize="15sp"/>
+
+        <ImageButton
+            android:id="@+id/ibtn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="8dp"
+            android:background="@null"
+            android:src="@mipmap/popup_btn_close"/>
+    </RelativeLayout>
+
+    <cn.jcyh.doorbelldemo.widget.MyDeviceParam
+        android:id="@+id/my_net_push"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:text="@string/net_pull"
+        app:text_color="@color/black_333333"
+        app:text_size="16sp"/>
+
+
+    <cn.jcyh.doorbelldemo.widget.MyDeviceParam
+        android:id="@+id/my_record"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:text="@string/videotap"
+        app:text_color="@color/black_333333"
+        app:text_size="16sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/gray_dcdcdc"/>
+
+    <cn.jcyh.doorbelldemo.widget.MyDeviceParam
+        android:id="@+id/my_leave_msg"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:text="@string/leave_msg"
+        app:text_color="@color/black_333333"
+        app:text_size="16sp"/>
+
+    <cn.jcyh.doorbelldemo.widget.MyDeviceParam
+        android:id="@+id/my_video_call"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:text="@string/video_call"
+        app:text_color="@color/black_333333"
+        app:text_size="16sp"/>
+
+    <!--<cn.jcyh.doorbelldemo.widget.MyDeviceParam
+        android:id="@+id/my_dial"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:text="@string/dial"
+        app:text_color="@color/black_333333"
+        app:text_size="16sp"/>
+
+    <cn.jcyh.doorbelldemo.widget.MyDeviceParam
+        android:id="@+id/my_send_msg"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:text="@string/send_msg"
+        app:text_color="@color/black_333333"
+        app:text_size="16sp"/>-->
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/gray_dcdcdc"/>
+
+    <TextView
+        android:id="@+id/tv_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="39dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/pink_ed814b"
+        android:gravity="center"
+        android:text="@string/ok"
+        android:textColor="@color/white"
+        android:textSize="23sp"/>
+</LinearLayout>

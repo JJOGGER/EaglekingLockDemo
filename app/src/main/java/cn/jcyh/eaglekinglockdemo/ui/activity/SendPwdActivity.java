@@ -9,12 +9,12 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TextView;
 
-import com.ttlock.bl.sdk.bean.LockKey;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.jcyh.eaglekinglockdemo.R;
 import cn.jcyh.eaglekinglockdemo.base.BaseActivity;
+import cn.jcyh.eaglekinglockdemo.constant.LockConstant;
+import cn.jcyh.eaglekinglockdemo.entity.LockKey;
 import cn.jcyh.eaglekinglockdemo.ui.fragment.SendPwdFragment;
 
 public class SendPwdActivity extends BaseActivity {
@@ -37,7 +37,7 @@ public class SendPwdActivity extends BaseActivity {
     @Override
     protected void init() {
         tvTitle.setText("发送密码");
-        mLockKey = getIntent().getParcelableExtra("key");
+        mLockKey = getIntent().getParcelableExtra(LockConstant.LOCK_KEY);
         vpContent.setOffscreenPageLimit(5);
         vpContent.setCurrentItem(0);
         MyAdapter myAdapter = new MyAdapter(getSupportFragmentManager());
@@ -65,8 +65,8 @@ public class SendPwdActivity extends BaseActivity {
         public Fragment getItem(int position) {
             SendPwdFragment sendPwdFragment = new SendPwdFragment();
             Bundle bundle = new Bundle();
-            bundle.putParcelable("key", mLockKey);
-            bundle.putInt("pos", position);
+            bundle.putParcelable(LockConstant.LOCK_KEY, mLockKey);
+            bundle.putInt(LockConstant.POSITION, position);
             sendPwdFragment.setArguments(bundle);
             return sendPwdFragment;
         }
